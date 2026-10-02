@@ -259,17 +259,25 @@ margin-top:32px
 }
 
 .gcard{
-  grid-template-columns:1fr;
-  gap:10px;
-  padding:12px;
+display:grid;
+grid-template-columns:1fr 180px;
+gap:14px;
+align-items:center;
+padding:11px 12px 11px 16px;
+transition:border-color .15s,box-shadow .15s
 }
 
 .gcard h3{
-  font-size:18px;
+display:flex;
+align-items:center;
+gap:8px;
+font:700 20px var(--px)
 }
 
 .gcard p{
-  font-size:12px;
+margin-top:6px;
+font-size:12.5px;
+line-height:1.45;color:var(--muted)
 }
 
 .gcard canvas{
@@ -432,17 +440,6 @@ display:grid;place-items:center;background:rgba(6,9,25,.76);border-radius:8px}
     gap:14px 20px;
   }
 
-  .gcard{
-    grid-template-columns:1fr;
-    gap:10px;
-    padding:12px;
-  }
-
-  .gcard canvas{
-    width:180px;
-    height:101px;
-  }
-
   .ccard{
     display:flex;
     gap:18px;
@@ -482,10 +479,7 @@ display:grid;place-items:center;background:rgba(6,9,25,.76);border-radius:8px}
     display:block;
   }
 
-  /*
-    Tombol / navbar juga tetap bentuk desktop.
-    Tidak diganti hamburger.
-  */
+  /* NAVBAR DESKTOP TETAP */
   .mobile-menu{
     display:none;
   }
@@ -557,6 +551,52 @@ display:grid;place-items:center;background:rgba(6,9,25,.76);border-radius:8px}
   .beam.r{
     left:1410px;
     right:auto;
+  }
+}
+
+/* ================= NAVBAR HP ================= */
+@media (max-width:600px){
+  nav.top{
+    height:76px;
+    padding:0 56px;
+  }
+
+  .mobile-menu{
+    display:flex !important;
+    flex:0 0 38px;
+    width:38px;
+    height:38px;
+    visibility:visible !important;
+    opacity:1 !important;
+  }
+
+  .links{
+    display:none;
+    position:absolute;
+    top:76px;
+    left:56px;
+    width:300px;
+    padding:12px;
+    flex-direction:column;
+    gap:4px;
+    background:rgba(7,10,32,.97);
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 12px 30px rgba(0,0,0,.45);
+  }
+
+  .links.open{
+    display:flex;
+  }
+
+  .links a{
+    display:block;
+    padding:10px 14px;
+  }
+
+  .links a.on::after{
+    left:14px;
+    right:14px;
   }
 }
 
