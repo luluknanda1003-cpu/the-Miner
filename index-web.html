@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>THE MINER — You Are The NPC</title>
+<meta name="description" content="Website resmi THE MINER. Turun ke tambang, jelajahi dunia pixel, dan buktikan kamu lebih dari sekadar NPC.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* =====================================================
+   YOU ARE THE NPC — website sebagai pintu masuk game
+   Target desain: desktop 1440 x 900
+   ===================================================== */
+:root{
+  --void:#060919;--night:#0b1030;--line:#2a3690;--line-soft:#1d2765;
+  --ink:#eaeeff;--muted:#a2addb;--lantern:#ffb347;--gold:#ffd35a;--crystal:#4fe3ff;
+  --violet:#7c6cff;--moss:#4be07a;--ember:#ff7a3d;--pink:#ff5d8f;
+  --px:'Pixelify Sans','Courier New',monospace;
+  --sans:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mx:50vw;--my:40vh;--dark:.08;--beam:0;--cave:none;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{background:var(--void)}
+body{background:var(--void);color:var(--ink);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.5}
+body.locked{overflow:hidden}
+canvas{image-rendering:pixelated;display:block}
+button{font-family:inherit;color:inherit;background:none;border:0}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--crystal);outline-offset:3px;border-radius:4px}
+.ic{display:inline-flex;line-height:0;flex:none}
+
+/* ---------- lapisan tetap: debu, cahaya lentera, balok penyangga ---------- */
+#dust{position:fixed;inset:0;z-index:45;pointer-events:none}
+#light{position:fixed;inset:0;z-index:40;pointer-events:none;
+  background:radial-gradient(circle 360px at var(--mx) var(--my),rgba(255,179,71,.10) 0,rgba(255,179,71,0) 55%,rgba(4,6,20,var(--dark)) 100%)}
+.beam{position:fixed;top:0;bottom:0;width:30px;z-index:3;pointer-events:none;opacity:var(--beam);
+  background:
+   repeating-linear-gradient(180deg,transparent 0 262px,#22130a 262px 270px,transparent 270px 300px),
+   linear-gradient(90deg,#2b190c,#5c3b1c 45%,#3a2412 60%,#22130a)}
+.beam.l{left:0;border-right:4px solid #120a05}
+.beam.r{right:0;border-left:4px solid #120a05}
+
+/* ---------- tombol ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;color:#fff;font:700 15px var(--sans);
+  padding:12px 22px;border-radius:10px;
+  background:linear-gradient(180deg,#8f82ff 0%,#5f43f2 100%);
+  box-shadow:0 0 0 2px rgba(255,255,255,.08) inset,0 4px 0 #2f1fa8,0 10px 30px rgba(124,108,255,.45);
+  transition:transform .12s steps(2),box-shadow .12s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 0 0 2px rgba(255,255,255,.14) inset,0 6px 0 #2f1fa8,0 14px 36px rgba(124,108,255,.65)}
+.btn:active{transform:translateY(3px);box-shadow:0 0 0 2px rgba(255,255,255,.08) inset,0 1px 0 #2f1fa8}
+.btn.big{padding:20px 38px;font:700 22px var(--px);letter-spacing:1px;border-radius:12px}
+.btn.sm{padding:8px 16px;font-size:13px;border-radius:8px}
+.btn.ghost{background:rgba(124,108,255,.14);box-shadow:0 0 0 2px var(--line) inset,0 4px 0 #0a0d2b}
+.btn.ghost:hover{background:rgba(124,108,255,.28)}
+.btn.green{background:linear-gradient(180deg,#4fe08a,#22a85a);box-shadow:0 0 0 2px rgba(255,255,255,.1) inset,0 3px 0 #146a38}
+.tri{width:0;height:0;border-left:14px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent}
+.big .tri{border-left-width:18px;border-top-width:12px;border-bottom-width:12px}
+
+
+/* ---------- navigasi ---------- */
+nav.top{position:fixed;top:0;left:0;right:0;height:76px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:0 56px;transition:background .3s,box-shadow .3s}
+nav.top.solid{background:rgba(7,10,32,.88);backdrop-filter:blur(10px);box-shadow:0 2px 0 var(--line-soft)}
+.logo{display:flex;align-items:center;gap:10px;font:700 19px/.92 var(--px);letter-spacing:.5px;text-transform:uppercase;text-shadow:0 2px 0 #0a0d2b}
+.logo .ic{transform:rotate(-25deg)}
+.links{display:flex;gap:6px}
+.mobile-menu{
+  display:none;
+  width:42px;
+  height:42px;
+  padding:0;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:rgba(10,14,44,.8);
+  color:#fff;
+  font-size:24px;
+  cursor:pointer;
+}
+
+.links a{position:relative;padding:8px 16px;font-size:14px;font-weight:600;color:#c9d2ff;transition:color .15s}
+.mobile-menu{
+  display:none;
+  width:42px;
+  height:42px;
+  padding:0;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:rgba(10,14,44,.8);
+  color:#fff;
+  font-size:24px;
+  cursor:pointer;
+}
+
+.links a:hover,.links a.on{color:#fff}
+.links a.on::after{content:'';position:absolute;left:16px;right:16px;bottom:0;height:4px;background:var(--lantern);box-shadow:0 0 12px var(--lantern)}
+.nav-r{display:flex;align-items:center;gap:12px}
+.nav-r .btn{padding:10px 22px}
+.gemchip{display:flex;align-items:center;gap:6px;font:700 15px var(--px);padding:6px 12px;border-radius:8px;background:rgba(10,14,44,.8);border:1px solid var(--line)}
+.gemchip.full{border-color:var(--crystal);box-shadow:0 0 18px rgba(79,227,255,.55)}
+.ghost-sm{font:600 12px var(--sans);padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:rgba(10,14,44,.6)}
+.ghost-sm:hover{border-color:var(--crystal)}
+
+/* ---------- gauge kedalaman ---------- */
+.gauge{position:fixed;right:46px;top:50%;transform:translateY(-50%);z-index:55;display:flex;flex-direction:column;align-items:center;gap:14px}
+.gauge .num{font:700 20px var(--px);padding:6px 10px;border-radius:8px;background:rgba(7,10,32,.88);border:1px solid var(--line);white-space:nowrap}
+.rail{position:relative;width:8px;height:44vh;min-height:280px;background:linear-gradient(90deg,#141a55,#2c3a8c 50%,#141a55);border:1px solid #0a0d2b;border-radius:2px}
+.rail::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(180deg,rgba(255,255,255,.28) 0 2px,transparent 2px 22px)}
+.mark{position:absolute;left:50%;width:16px;height:16px;margin:-8px 0 0 -8px;background:var(--lantern);border:2px solid #fff4c8;box-shadow:0 0 16px var(--lantern);transform:rotate(45deg);transition:top .12s linear;pointer-events:none;z-index:2}
+.node{position:absolute;left:50%;width:14px;height:14px;margin:-7px 0 0 -7px;background:#0a0d2b;border:2px solid #6d7ce0;transform:rotate(45deg);z-index:1}
+.node:hover{background:var(--crystal);border-color:#fff}
+.node.on{border-color:var(--lantern)}
+.node::after{content:attr(data-tip);position:absolute;right:26px;top:50%;transform:rotate(-45deg) translate(0,-50%);transform-origin:right center;white-space:nowrap;font:600 12px var(--sans);padding:6px 10px;border-radius:6px;background:rgba(7,10,32,.95);border:1px solid var(--line);opacity:0;pointer-events:none;transition:opacity .12s}
+.node:hover::after,.node:focus-visible::after{opacity:1}
+
+/* ---------- toast area & pesan ---------- */
+.zone{position:fixed;top:96px;left:50%;z-index:58;pointer-events:none;opacity:0;transform:translate(-50%,-30px);display:flex;align-items:center;gap:22px;padding:12px 22px;border-radius:10px;background:rgba(8,12,38,.94);border:1px solid var(--line);border-left:5px solid var(--lantern);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.zone.show{animation:zone 2.8s steps(14) both}
+.zone small{display:block;font-size:12px;color:var(--muted)}
+.zone b{font:700 24px var(--px)}
+.zone .zd{font:700 22px var(--px);color:var(--lantern)}
+@keyframes zone{0%{opacity:0;transform:translate(-50%,-30px)}12%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-14px)}}
+.toast{position:fixed;left:50%;bottom:34px;z-index:70;transform:translate(-50%,20px);opacity:0;pointer-events:none;padding:12px 22px;border-radius:10px;background:rgba(8,12,38,.95);border:1px solid var(--crystal);font:600 14px var(--sans);box-shadow:0 0 30px rgba(79,227,255,.25);transition:opacity .2s steps(3),transform .2s steps(3)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- struktur section ---------- */
+main{position:relative}
+section{position:relative}
+.wrap{max-width:1216px;margin:0 auto;padding:0 24px;position:relative;z-index:5}
+.deep{padding:170px 0 90px;background-color:#0a0e2b;background-image:var(--cave);background-size:256px 256px;image-rendering:pixelated}
+.deep::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 85% 75% at 50% 45%,transparent 45%,rgba(3,5,18,.55))}
+.strata{position:absolute;left:0;right:0;top:0;height:140px;z-index:4;pointer-events:none}
+.strata canvas{width:100%;height:140px;animation:crys 4.4s steps(8) infinite}
+@keyframes crys{0%,100%{filter:drop-shadow(0 6px 6px rgba(79,227,255,.25))}50%{filter:drop-shadow(0 8px 14px rgba(79,227,255,.7)) brightness(1.12)}}
+h2.sec{font:700 60px/1 var(--px);letter-spacing:1px;color:#fff;text-shadow:0 4px 0 #0a0d2b,0 0 30px rgba(124,108,255,.35)}
+.sub{color:var(--muted);font-size:17px;margin-top:12px}
+.center{text-align:center;margin-left:auto;margin-right:auto}
+.card{background:linear-gradient(180deg,rgba(20,28,78,.88),rgba(12,17,56,.92));border:1px solid var(--line-soft);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.35);backdrop-filter:blur(4px)}
+.tag{display:inline-block;font:600 11px var(--sans);padding:3px 10px;border-radius:5px;color:#fff}
+.t-starter{background:#a88a3c}.t-craft{background:#e2557a}.t-trade{background:#3f86e6}.t-secret{background:#7a56e6}
+.t-update{background:#7a56e6}.t-event{background:#2fae62}.t-ann{background:#3f86e6}
+
+/* ---------- lentera & kristal tersembunyi ---------- */
+.lantern{position:absolute;width:40px;height:56px;transform-origin:50% 0;animation:swing 4s ease-in-out infinite;z-index:6;pointer-events:none}
+.lantern::before{content:'';position:absolute;left:19px;bottom:36px;width:2px;height:120px;background:#12122b}
+.lantern canvas{position:absolute;left:0;bottom:0;width:40px;height:36px}
+.lantern::after{content:'';position:absolute;left:50%;top:70%;width:300px;height:300px;margin:-150px 0 0 -150px;background:radial-gradient(circle,rgba(255,179,71,.34),rgba(255,179,71,0) 65%);animation:flick 2.6s steps(1) infinite;mix-blend-mode:screen}
+.lantern.left{left:34px;top:140px}
+.lantern.right{right:34px;top:140px}
+@keyframes swing{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+@keyframes flick{0%{opacity:1}13%{opacity:.72}26%{opacity:1}41%{opacity:.82}55%{opacity:.6}70%{opacity:1}86%{opacity:.78}}
+.gem{position:absolute;z-index:8;width:48px;height:42px;display:grid;place-items:center;animation:gemf 2.4s steps(4) infinite;filter:drop-shadow(0 0 8px rgba(79,227,255,.9))}
+.gem:hover{filter:drop-shadow(0 0 16px #7df2ff) brightness(1.5)}
+.gem.found{animation:none;transform:scale(0);opacity:0;transition:transform .3s steps(3),opacity .3s;pointer-events:none}
+@keyframes gemf{50%{transform:translateY(-6px)}}
+
+/* ---------- HOME ---------- */
+#home{padding:0;min-height:max(100vh,780px);overflow:hidden;background:#22124a}
+#home .scene{position:absolute;inset:0;will-change:transform}
+#home .scene .bg{position:absolute;inset:0;width:100%;height:100%}
+#heroMiner{position:absolute;left:70%;top:41%;width:18.3%;height:auto;animation:bob 2.4s steps(4) infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.hero-wrap{min-height:max(100vh,780px);padding-top:150px}
+h1.title{font:700 104px/.94 var(--px);letter-spacing:2px;color:#fff;
+  text-shadow:-5px 0 0 #1c1233,5px 0 0 #1c1233,0 -5px 0 #1c1233,0 5px 0 #1c1233,-5px -5px 0 #1c1233,5px -5px 0 #1c1233,-5px 5px 0 #1c1233,5px 5px 0 #1c1233,0 11px 0 #0f0820,0 16px 34px rgba(255,140,50,.35)}
+.tagline{font:600 22px/1.3 var(--sans);color:#f1eaff;margin-top:26px;text-shadow:0 2px 0 #1a1030}
+.lead{max-width:470px;margin-top:12px;font-size:16px;line-height:1.65;color:#d5d0f5;text-shadow:0 2px 0 rgba(26,16,48,.8)}
+.hero-copy .btn{margin-top:30px}
+.cue{position:absolute;left:50%;bottom:214px;margin-left:-19px;width:38px;height:38px;border-radius:50%;background:rgba(9,13,42,.6);border:2px solid rgba(255,255,255,.6);animation:cue 1.6s steps(4) infinite}
+.cue::after{content:'';position:absolute;left:10px;top:8px;width:10px;height:10px;border-right:3px solid #fff;border-bottom:3px solid #fff;transform:rotate(45deg)}
+@keyframes cue{50%{transform:translateY(8px)}}
+.hero-bottom{position:absolute;left:24px;right:24px;bottom:44px;display:flex;justify-content:space-between;align-items:flex-end}
+.fh{font:700 20px var(--px);margin-bottom:12px;text-shadow:0 2px 0 #12082a}
+.tiles{display:flex;gap:12px}
+.tile{width:126px;padding:14px 8px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;background:rgba(9,13,42,.8);transition:transform .15s steps(3),border-color .15s}
+.tile b{font:700 16px var(--px)}
+.tile span{font-size:11px;line-height:1.35;color:var(--muted)}
+.tile:hover{transform:translateY(-4px);border-color:var(--gold)}
+.intro h1.title{animation:drop .8s steps(8) .9s both}
+.intro .tagline{animation:pop .6s steps(5) 1.4s both}
+.intro .lead{animation:pop .6s steps(5) 1.6s both}
+.intro .hero-copy .btn{animation:pop .6s steps(5) 1.8s both}
+@keyframes drop{from{transform:translateY(-60px);opacity:0}}
+@keyframes pop{from{transform:translateY(14px);opacity:0}}
+
+/* ---------- CHARACTER ---------- */
+.char-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:32px;
+margin-top:40px;
+align-items:start
+}
+
+.clist{
+display:flex;
+flex-direction:column;
+gap:14px
+}
+
+.ccard{
+display:flex;
+gap:18px;
+align-items:center;
+padding:14px;
+text-align:left;
+width:100%;
+transition:border-color .15s,box-shadow .15s,transform .15s steps(3)
+}
+
+.ccard canvas{
+flex:none;
+width:96px;
+height:96px;
+border-radius:8px;
+border:2px solid #0a0d2b
+}
+
+.ccard h3{
+font:700 22px var(--px)
+}
+
+.ccard p{
+font-size:13px;
+line-height:1.55;
+color:var(--muted);
+margin:4px 0 8px
+}
+
+.ccard:hover{
+border-color:var(--line)
+}
+.ccard[
+aria-pressed=true]{border-color:var(--lantern);box-shadow:0 0 0 1px var(--lantern),0 0 34px rgba(255,179,71,.22);transform:translateX(6px)}
+.stage{position:relative;border-radius:14px;overflow:hidden;border:2px solid var(--line);background:#0a0d2b;box-shadow:0 0 0 4px #070a20,0 20px 60px rgba(0,0,0,.5)}
+.stage canvas{width:100%;height:auto;aspect-ratio:142/100}
+.stats-ov{position:absolute;top:14px;right:14px;display:grid;gap:6px;padding:10px 12px;background:rgba(8,12,38,.82);border:1px solid var(--line);border-radius:8px;font-size:12px}
+.stats-ov div{display:flex;justify-content:space-between;gap:14px;align-items:center}
+.pips{display:inline-flex;gap:3px}
+.pips i{width:8px;height:8px;background:#232c78}
+.pips i.on{background:var(--gold)}
+.dlg{height:138px;padding:16px 22px;background:linear-gradient(180deg,#141b55,#0d1240);border-top:2px solid var(--line)}
+.dlg .who{display:flex;align-items:center;gap:12px}
+.dlg h3{font:700 24px var(--px)}
+.dlg .say{margin-top:8px;font-size:15px;line-height:1.55;color:#dfe4ff;min-height:46px}
+.dlg .say::after{content:'';display:inline-block;width:8px;height:14px;margin-left:4px;vertical-align:-2px;background:var(--lantern);animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* ---------- GAMEPLAY ---------- */
+.gp-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px 20px;
+margin-top:32px
+}
+
+.gcard{
+display:grid;
+grid-template-columns:1fr 180px;
+gap:14px;
+align-items:center;
+padding:11px 12px 11px 16px;
+transition:border-color .15s,box-shadow .15s
+}
+
+.gcard h3{
+display:flex;
+align-items:center;
+gap:8px;
+font:700 20px var(--px)
+}
+
+.gcard p{
+margin-top:6px;
+font-size:12.5px;
+line-height:1.45;color:var(--muted)
+}
+
+.gcard canvas{
+width:180px;
+height:101px;
+border-radius:7px;
+border:2px solid #0a0d2b
+}
+
+.gcard:hover{
+border-color:var(--crystal);
+box-shadow:0 0 0 1px var(--crystal),0 0 34px rgba(79,227,255,.22)
+}
+
+
+/* ---------- PLAY (mini game) ---------- */
+#play{padding-top:150px;padding-bottom:60px}
+.game{position:relative;box-sizing:content-box;width:960px;margin:34px auto 0;padding:14px;border-radius:14px;background:linear-gradient(180deg,#1a2160,#0f1443);border:2px solid #3947b8;box-shadow:0 0 0 4px #0a0d2b,0 30px 80px rgba(0,0,0,.6),0 0 60px rgba(124,108,255,.25)}
+.hud{display:flex;justify-content:space-between;align-items:center;padding:2px 8px 12px}
+.hearts{display:flex;gap:6px}
+.hearts canvas.off{opacity:.2;filter:grayscale(1)}
+.chip{display:flex;align-items:center;gap:8px;font:700 24px var(--px)}
+.cwrap{position:relative}
+#game{width:960px;height:432px;border-radius:8px;touch-action:manipulation}
+.pill{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);padding:8px 22px;border-radius:999px;background:rgba(8,12,38,.88);border:1px solid var(--line);font-size:14px;font-weight:600;pointer-events:none}
+.ov{position:absolute;inset:0;
+display:grid;place-items:center;background:rgba(6,9,25,.76);border-radius:8px}
+.ov-card{text-align:center;max-width:520px;padding:0 24px}
+.ov-card h3{font:700 34px var(--px)}
+.ov-card p{margin:10px 0 22px;color:#cdd4fa;font-size:15px;line-height:1.6}
+.ov-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.game-foot{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:26px}
+.quote{display:flex;align-items:center;gap:12px;color:#cdd4fa;font-size:15px;font-style:italic}
+.best{font-size:13px;color:var(--muted)}
+
+/* ---------- LOADER (mulut tambang) ---------- */
+#loader{position:fixed;inset:0;z-index:300;background:#05060f}
+#loader.done{display:none}
+.half{position:absolute;top:0;bottom:0;width:50%;overflow:hidden;background:#05060f;transition:transform 1.3s steps(13) .3s}
+.half.l{left:0}.half.r{right:0}
+.stagebox{position:absolute;top:0;bottom:0;width:200%}
+.half.l .stagebox{left:0}.half.r .stagebox{left:-100%}
+.stagebox canvas{width:100%;height:100%}
+.stagebox .lantern{top:24%}
+#loader.open .half.l{transform:translateX(-101%)}
+#loader.open .half.r{transform:translateX(101%)}
+.ld-ui{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;gap:0;transition:opacity .3s steps(3)}
+#loader.open .ld-ui{opacity:0;pointer-events:none}
+
+.ld-logo{font:700 clamp(40px,7vw,72px)/1 var(--px);letter-spacing:3px;color:#fff;white-space:nowrap;
+  text-shadow:4px 4px 0 #6a55f0}
+
+.ld-bar{position:relative;width:min(630px,80vw);margin-top:64px}
+.ld-rail{position:relative;width:100%;height:12px;background:#281c55}
+.ld-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#f5b72e,#f59a3a)}
+.ld-cart{position:absolute;bottom:12px;left:0;width:44px;height:44px;margin-left:-22px;
+  image-rendering:pixelated;animation:ldwalk .4s steps(2) infinite}
+@keyframes ldwalk{50%{transform:translateY(-3px)}}
+
+.ld-pct{font:700 20px var(--px);margin-top:18px}
+.ld-msg{margin-top:10px}
+.ld-tip{margin-top:6px}
+#ldEnter{margin-top:18px}
+
+/* ---------- transisi gali & gerbang game ---------- */
+#wipe{position:fixed;inset:0;z-index:200;pointer-events:none}
+#wipeTxt{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:201;font:700 46px var(--px);color:#fff;text-shadow:0 4px 0 #0a0d2b;opacity:0;pointer-events:none;text-align:center}
+#wipeTxt small{display:block;font:600 14px var(--sans);color:var(--muted);margin-top:6px;text-shadow:none}
+#wipeTxt.on{opacity:1}
+#gate{position:fixed;inset:0;z-index:250;pointer-events:none;visibility:hidden}
+#gate.on{visibility:visible;pointer-events:auto}
+.gd{position:absolute;top:0;bottom:0;width:50.2%;transition:transform .9s steps(9);
+  background:linear-gradient(90deg,transparent calc(100% - 6px),#0b0604 calc(100% - 6px)),repeating-linear-gradient(90deg,#4a2c14 0 58px,#2d1a0b 58px 62px);
+  box-shadow:inset 0 0 140px rgba(0,0,0,.65)}
+.gd::before,.gd::after{content:'';position:absolute;left:0;right:0;height:38px;background:radial-gradient(circle at 14px 50%,#9aa2cf 0 3px,transparent 4px) 0 0/52px 100%,linear-gradient(#3b4266,#232946);box-shadow:0 4px 0 rgba(0,0,0,.5)}
+.gd::before{top:20%}.gd::after{top:72%}
+.gd.l{left:0;transform:translateX(-101%)}.gd.r{right:0;transform:translateX(101%)}
+#gate.on .gd{transform:none}
+.gate-ui{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;opacity:0;transition:opacity .2s steps(2) .9s}
+#gate.on .gate-ui{opacity:1}
+.gate-depth{font:700 72px var(--px);text-shadow:0 5px 0 #0a0d2b;color:var(--lantern)}
+#gMsg{font-size:17px;color:#f0e6ff;min-height:26px}
+.gate-bar{width:420px;height:14px;background:#0a0d2b;border:2px solid #000;border-radius:3px}
+.gate-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#c9761c,var(--lantern));box-shadow:0 0 14px var(--lantern)}
+#gFailTxt{max-width:460px;margin-bottom:16px;font-size:14px;line-height:1.6;color:#f5c9c9}
+
+
+/* ---------- responsif dasar ---------- */ 
+@media (max-width:1180px){ 
+  .gauge{display:none}
+
+  .mobile-menu{
+    display:block;
+  }
+
+  .links{
+    display:none;
+    position:absolute;
+    top:68px;
+    right:20px;
+    flex-direction:column;
+    gap:4px;
+    min-width:180px;
+    padding:10px;
+    background:rgba(7,10,32,.97);
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 12px 30px rgba(0,0,0,.45);
+  }
+
+  .links.open{
+    display:flex;
+  }
+
+  .links a{
+    padding:12px 14px;
+  }
+   
+  nav.top{padding:0 20px} 
+  .char-grid,.gp-grid,.news-grid{grid-template-columns:1fr} 
+  .hero-bottom{flex-direction:column;align-items:flex-start;gap:16px} 
+  h1.title{font-size:72px} 
+  #heroMiner{display:none} 
+  .game,#game{width:100%;height:auto} 
+  .game{box-sizing:border-box} 
+  .cue{display:none} 
+} 
+
+@media (prefers-reduced-motion:reduce){ 
+  *,*::before,*::after{animation:none!important;transition:none!important} 
+}
+
+/* GAME THE MINER DI PLAY NOW */
+.real-game {
+  width: 100%;
+  max-width: 1100px;
+  margin: 35px auto 0;
+  padding: 14px;
+  background: #0a0d2b;
+  border: 2px solid #3947b8;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 4px #080a20,
+    0 30px 80px rgba(0,0,0,.6);
+}
+
+.game-frame {
+  display: block;
+  width: 100%;
+  height: 720px;
+  border: 0;
+  border-radius: 8px;
+  background: #0d0d15;
+}
+.fh{display:none}
+
+/* Judul section "Siap turun ke tambang?" dan "Play Now" */
+#final h2.sec,
+#playnow h2.sec{
+  font-size:42px;
+  text-align:center;
+}
+#final .sub,
+#playnow .sub{
+  font-size:15px;
+  text-align:center;
+}
+
+.final-body{text-align:center}
+.final-actions{display:flex;justify-content:center;margin-top:28px}
+.final-body .sub{max-width:520px;margin-left:auto;margin-right:auto}
+
+.foot{
+  text-align:center;
+  padding:30px 24px 40px;
+  position:relative;
+  z-index:5;
+}
+.foot small{
+  display:block;
+  text-align:center;
+  font-size:13px;
+  color:var(--muted);
+}
+
+#loader .ld-logo{
+  font-size:clamp(28px,4.5vw,48px);
+  letter-spacing:2px;
+  text-shadow:3px 3px 0 #6a55f0;
+}
+
+#loader #ldEnter.btn.big{
+  padding:12px 24px;
+  font-size:15px;
+  letter-spacing:.5px;
+  border-radius:10px;
+  gap:8px;
+}
+#loader #ldEnter .tri{
+  border-left-width:11px;
+  border-top-width:7px;
+  border-bottom-width:7px;
+}
+#loader .ld-bar{
+  width:min(420px,70vw);
+  margin-top:40px;
+}
+#loader .ld-rail{
+  height:8px;
+}
+#loader .ld-cart{
+  width:32px;
+  height:32px;
+  margin-left:-16px;
+  bottom:8px;
+}
+</style>
+
+
+
+
+</head>
+<body class="locked">
+
+<!-- ============ LOADING: masuk ke mulut tambang ============ -->
+<div id="loader" role="status" aria-label="Memuat website">
+  <div class="half l"><div class="stagebox"><canvas class="ld-c" width="480" height="300"></canvas></div></div>
+  <div class="half r"><div class="stagebox"><canvas class="ld-c" width="480" height="300"></canvas></div></div>
+  <div class="ld-ui">
+   <div class="ld-logo">THE MINER</div>
+   <div class="ld-bar">
+    <canvas class="ld-cart" id="ldCart" width="24" height="24"></canvas>
+    <div class="ld-rail"><div class="ld-fill" id="ldFill"></div></div>
+   </div>
+   <div class="ld-pct" id="ldPct">0%</div>
+   <button class="btn big" id="ldEnter" type="button" hidden><span class="tri"></span>Masuk ke Tambang</button>
+</div>
+</div>
+
+<canvas id="dust" aria-hidden="true"></canvas>
+<div id="light" aria-hidden="true"></div>
+<div class="beam l" aria-hidden="true"></div><div class="beam r" aria-hidden="true"></div>
+
+<!-- ============ NAVIGASI ============ -->
+<nav class="top" id="nav" aria-label="Navigasi utama">
+  <a class="logo" href="#home" data-go="home" aria-label="THE MINER, ke atas"><i class="ic" data-icon="pick" data-s="3"></i><span>THE<br>MINER</span></a>
+  <div class="links" id="links">
+    <a href="#home" data-go="home">Home</a>
+    <a href="#character" data-go="character">Character</a>
+    <a href="#gameplay" data-go="gameplay">Gameplay</a>
+    <a href="#playnow" data-go="playnow">Playnow</a>
+  </div>
+  <button class="mobile-menu" id="mobileMenu" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+
+  <div class="nav-r">
+    <div class="gemchip" id="gemChip" title="Kristal tersembunyi yang sudah kamu temukan"><i class="ic" data-icon="gem" data-s="2"></i><span><b id="gemN">0</b>/6</span></div> 
+    <button class="btn" type="button" data-play><span class="tri"></span>Play Now</button>
+  </div>
+</nav>
+
+<aside class="gauge" id="gauge" aria-label="Peta kedalaman tambang" hidden>
+  <div class="num"><span id="depthNum">0</span> m</div>
+  <div class="rail" id="rail"><i class="mark" id="mark"></i></div>
+</aside>
+
+<div class="zone" id="zone" role="status" aria-live="polite"><div><small id="zoneL">Area baru</small><b id="zoneN">Permukaan</b></div><span class="zd" id="zoneD"></span></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<canvas id="wipe" aria-hidden="true"></canvas><div id="wipeTxt" aria-hidden="true"></div>
+
+<!-- gerbang menuju game PHP -->
+<div id="gate" aria-hidden="true">
+  <div class="gd l"></div><div class="gd r"></div>
+  <div class="gate-ui">
+    <div class="gate-depth">−<span id="gDepth">0</span> m</div>
+    <p id="gMsg">Menyalakan lentera…</p>
+    <div class="gate-bar"><i id="gBar"></i></div>
+    <div id="gFail" hidden><p id="gFailTxt"></p><button class="btn" id="gBack" type="button">Kembali ke atas</button></div>
+  </div>
+</div>
+
+<main>
+<!-- ================= 1. HOME — permukaan ================= -->
+<section id="home" data-depth="0" data-zone="Permukaan">
+  <div class="scene" id="scene" aria-hidden="true">
+    <canvas class="bg" id="heroBG" width="480" height="300"></canvas>
+    <canvas id="heroMiner" width="88" height="96"></canvas>
+  </div>
+  <div class="wrap hero-wrap">
+    <div class="hero-copy">
+      <h1 class="title">THE<br>MINER</h1>
+      <p class="tagline">Mine. Explore. Become more than an NPC.</p>
+      <p class="lead">Dunia yang luas, sumber daya yang tak terbatas, dan cerita yang menunggu untuk kamu tulis. Apakah kamu hanya NPC… atau sesuatu yang lebih?</p>
+      <button class="btn big" type="button" data-play><span class="tri"></span>PLAY NOW</button>
+    </div>
+    <button class="cue" type="button" data-go="character" aria-label="Turun ke tambang"></button>
+    <div class="hero-bottom">
+      <div class="featured">
+        <div class="tiles">
+          <a class="card tile" href="#gameplay" data-go="gameplay"><i class="ic" data-icon="pick" data-s="4"></i><b>Mine</b><span>Kumpulkan resource berharga</span></a>
+          <a class="card tile" href="#gameplay" data-go="gameplay"><i class="ic" data-icon="leaf" data-s="4"></i><b>Explore</b><span>Jelajahi dunia yang penuh misteri</span></a>
+          <a class="card tile" href="#gameplay" data-go="gameplay"><i class="ic" data-icon="chest" data-s="4"></i><b>Trade</b><span>Jual hasil tambang dan dapatkan koin</span></a>
+          <a class="card tile" href="#gameplay" data-go="gameplay"><i class="ic" data-icon="up" data-s="4"></i><b>Upgrade</b><span>Tingkatkan peralatan dan kemampuan</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="gem" type="button" aria-label="Kristal tersembunyi" style="left:90%;top:22%"><i class="ic" data-icon="gem" data-s="3"></i></button>
+</section>
+
+<!-- ================= 2. CHARACTER — desa penambang ================= -->
+<section id="character" class="deep" data-depth="60" data-zone="Desa Penambang">
+  <div class="strata" aria-hidden="true"><canvas width="360" height="35"></canvas></div>
+  <div class="wrap">
+    <header>
+      <h2 class="sec">Characters</h2>
+      <p class="sub">Setiap NPC punya cerita. Siapa yang akan kamu jadi?</p>
+    </header>
+    <div class="char-grid">
+      <div class="clist" id="clist"></div>
+      <div class="stage card" id="stage">
+        <canvas id="stageCv" width="142" height="100" aria-hidden="true"></canvas>
+        <div class="stats-ov" id="stStats" aria-label="Kemampuan karakter"></div>
+        <div class="dlg" aria-live="polite">
+          <div class="who"><h3 id="stName">NPC Miner</h3><span class="tag t-starter" id="stTag">Starter</span></div>
+          <p class="say" id="stSay"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="gem" type="button" aria-label="Kristal tersembunyi" style="left:4%;top:88%"><i class="ic" data-icon="gem" data-s="3"></i></button>
+</section>
+
+<!-- ================= 3. GAMEPLAY — terowongan dalam ================= -->
+<section id="gameplay" class="deep" data-depth="140" data-zone="Terowongan Dalam">
+  <div class="strata" aria-hidden="true"><canvas width="360" height="35"></canvas></div>
+  <div class="wrap">
+    <header>
+      <h2 class="sec">Gameplay</h2>
+      <p class="sub">Jelajahi, kumpulkan, bangun, dan jadilah lebih kuat!</p>
+    </header>
+    <div class="gp-grid" id="gpGrid"></div>
+  </div>
+  <button class="gem" type="button" aria-label="Kristal tersembunyi" style="left:90%;top:9%"><i class="ic" data-icon="gem" data-s="3"></i></button>
+</section>
+
+
+<!-- ================= SIAP TURUN KE TAMBANG ================= -->
+<section id="final" class="deep" data-depth="220" data-zone="Gua Kristal">
+  <div class="strata" aria-hidden="true"><canvas width="360" height="35"></canvas></div>
+  <div class="wrap final-body">
+    <h2 class="sec">Siap turun ke tambang?</h2>
+    <p></p>
+    <div class="final-actions">
+      <button class="btn big" type="button" data-play><span class="tri"></span>PLAY NOW</button>
+    </div>
+  </div>
+  <button class="gem" type="button" aria-label="Kristal tersembunyi" style="left:84%;top:20%"><i class="ic" data-icon="gem" data-s="3"></i></button>
+</section>
+
+<!-- ================= PLAY NOW ================= -->
+<section id="playnow" class="deep" data-depth="420" data-zone="Dasar Tambang">
+  <div class="strata" aria-hidden="true"><canvas width="360" height="35"></canvas></div>
+
+  <div class="wrap">
+    <header class="center" style="text-align:center">
+      <h2 class="sec">Play Now</h2>
+      <p class="sub">Saatnya buktikan kalau kamu bukan sekadar NPC!</p>
+    </header>
+
+    <div class="real-game">
+      <iframe src="game/index.html" title="THE MINER Game" class="game-frame" loading="eager" allow="fullscreen"></iframe>
+    </div>
+
+    <div class="game-foot">
+      <p class="quote"><i class="ic" data-icon="pick" data-s="2"></i>"Setiap langkah kecil, bisa jadi awal dari perjalanan baru."</p>
+    </div>
+  </div>
+
+  <div class="foot"><small>© 2026 THE MINER — You Are The NPC.</small></div>
+
+  <button class="gem" type="button" aria-label="Kristal tersembunyi" style="left:5%;top:60%"><i class="ic" data-icon="gem" data-s="3"></i></button>
+  <button class="gem" type="button" aria-label="Kristal tersembunyi" style="left:92%;top:70%"><i class="ic" data-icon="gem" data-s="3"></i></button>
+</section>
+</main>
+
+<script>
+(function(){
+'use strict';
+
+/* =====================================================
+   KONFIGURASI — ubah bagian ini saja
+   ===================================================== */
+const GAME_URL='game/index.html';   // path game PHP kamu (tombol PLAY NOW menuju ke sini)            // opsional: URL embed YouTube, mis. https://www.youtube.com/embed/xxxx
+const DEPTH_MAX=420;
+
+
+
+/* =====================================================
+   UTIL
+   ===================================================== */
+const $=(s,r)=>(r||document).querySelector(s);
+const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
+const mobileMenu=$('#mobileMenu');
+const links=$('#links');
+
+mobileMenu?.addEventListener('click',()=>{
+  const open=links.classList.toggle('open');
+  mobileMenu.setAttribute('aria-expanded',String(open));
+});
+
+links?.addEventListener('click',e=>{
+  if(e.target.closest('a')){
+    links.classList.remove('open');
+    mobileMenu?.setAttribute('aria-expanded','false');
+  }
+});
+
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const root=document.documentElement;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function cv(w,h,el){const c=el||document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.imageSmoothingEnabled=false;return[c,x]}
+function R(x,c,a,b,w,h){x.fillStyle=c;x.fillRect(Math.round(a),Math.round(b),Math.max(0,Math.round(w)),Math.max(0,Math.round(h)))}
+const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const mix=(a,b,t)=>{const A=hex(a),B=hex(b);return'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')+')'};
+function grad(x,w,h,cols,step){step=step||4;const n=cols.length-1;for(let y=0;y<h;y+=step){const t=Math.min(n-.0001,y/h*n),i=t|0;R(x,mix(cols[i],cols[i+1],t-i),0,y,w,step)}}
+function disc(x,c,cx,cy,r){for(let dy=-r;dy<=r;dy++){const hw=Math.round(Math.sqrt(r*r-dy*dy));R(x,c,cx-hw,cy+dy,hw*2,1)}}
+
+/* =====================================================
+   PIXEL ART — ikon, karakter, dekorasi (semua digambar lewat kode)
+   ===================================================== */
+const PAL={k:'#12122b',w:'#eef1ff',g:'#a4aed6',d:'#5a648f',b:'#a86a32',B:'#5e3818',y:'#ffd35a',o:'#ff9d2e',r:'#ff5a6a',G:'#2fbf62',l:'#8bf07a',c:'#4fe3ff',C:'#1f9ac4',p:'#9a7bff',P:'#5b3fd6'};
+const ICONS={
+ pick:['..gggggggg..','.gwwwwwwwwg.','gww..bb..wwg','g....bb....g','.....bb.....','.....bb.....','.....bb.....','.....bb.....','.....bb.....','.....bb.....','.....bB.....','.....BB.....'],
+ leaf:['............','.GGG....GGG.','GlllG..GlllG','GlllllGGlllG','.GlllGGGllG.','..GGGGGGGG..','....GGGG....','.....GG.....','.....GG.....','.....GG.....','..bbbbbbbb..','..BBBBBBBB..'],
+ chest:['..kkkkkkkk..','.kbbbbbbbbk.','kbbbbbbbbbbk','kBBBBBBBBBBk','kkkkkyykkkkk','kbbbbyybbbbk','kbbbbyybbbbk','kbbbbbbbbbbk','kBBBBBBBBBBk','.kkkkkkkkkk.'],
+ up:['.....GG.....','....GllG....','...GllllG...','..GllllllG..','.GGGllllGGG.','...GllllG...','...GllllG...','...GllllG...','...GGGGGG...'],
+ gem:['...kkkkkk...','..kwwcccck..','.kwwcccccck.','kwwcccccccck','kccccccccCCk','.kcccccCCCk.','..kccCCCCk..','....kCCk....','.....kk.....'],
+ coin:['...kkkk...','..kyyyyk..','.kywyyyok.','kywyyyyyok','kywyyyyyok','kyyyyyyyok','kyyyyyyyok','.kyyyyyok.','..kooook..','...kkkk...'],
+ hammer:['.gggggggg...','gwwwwwwwwg..','gwwwwwwwwg..','.gggggggg...','....bb......','....bb......','....bb......','....bb......','....bB......','....BB......'],
+ book:['kkkkkkkkkkkk','kwwwwkkwwwwk','kwggwkkwggwk','kwwwwkkwwwwk','kwggwkkwggwk','kwwwwkkwwwwk','kkkkkkkkkkkk'],
+ chat:['kkkkkkkkkk..','kwwwwwwwwk..','kwkwkwkwwk..','kwwwwwwwwk..','kkkkwkkkkk..','...kwk......','...kk.......'],
+ heart:['.kk.kk.','krrkrrk','krwrrrk','krrrrrk','.krrrk.','..krk..','...k...'],
+ clock:['..kkkk..','.kwwwwk.','kwwkwwwk','kwwkwwwk','kwwkkwwk','kwwwwwwk','.kwwwwk.','..kkkk..'],
+ lantern:['....kk....','...kggk...','..kkkkkk..','.kyywwyyk.','.kywwwwyk.','.kywwwwyk.','.kyywwyyk.','..kkkkkk..','...kggk...'],
+ cart:['..c..y..p....','.kkkkkkkkkkk.','kbbbbbbbbbbbk','.kbbbbbbbbbk.','..kkkkkkkkk..','..kwk...kwk..']
+};
+function drawMap(x,map,ox,oy,s){map.forEach((row,j)=>{for(let i=0;i<row.length;i++){const ch=row[i];if(ch!=='.'&&PAL[ch])R(x,PAL[ch],ox+i*s,oy+j*s,s,s)}})}
+function icon(name,s){const m=ICONS[name],w=Math.max.apply(null,m.map(r=>r.length)),p=cv(w*s,m.length*s);drawMap(p[1],m,0,0,s);return p[0]}
+function injectIcons(scope){$$('[data-icon]',scope).forEach(el=>{if(el.firstChild)return;el.appendChild(icon(el.dataset.icon,+el.dataset.s||3))})}
+
+const OUT='#150f26';
+function person(ctx,ox,oy,s,o){
+  const parts=[],det=[];
+  const add=(a,b,w,h,c)=>parts.push([a,b,w,h,c]);
+  const d=(a,b,w,h,c)=>det.push([a,b,w,h,c]);
+  if(o.cloak){
+    add(5,9,10,12,o.cloak);add(6,3,8,8,o.hood);
+    d(8,6,4,4,'#07060f');d(8,8,1,1,'#ffffff');d(11,8,1,1,'#ffffff');d(6,10,8,1,o.hood);d(13,10,1,10,'rgba(0,0,0,.25)');
+  }else{
+    if(o.pack)add(3,11,3,6,o.pack);
+    add(7,17,3,4,o.pants);add(10,17,3,4,o.pants);
+    add(6,20,4,2,o.boots);add(10,20,4,2,o.boots);
+    add(6,11,8,6,o.shirt);add(4,11,2,5,o.shirt);add(14,11,2,5,o.shirt);
+    add(4,16,2,2,o.skin);add(14,16,2,2,o.skin);
+    add(7,5,6,6,o.skin);
+    if(o.hat){add(6,2,8,3,o.hat);add(5,5,10,1,o.hatD)}
+    if(o.hair)add(6,3,8,3,o.hair);
+    if(o.beard)add(7,9,6,3,o.beard);
+    if(o.apron)add(7,13,6,6,o.apron);
+    if(o.strap){d(8,11,1,6,o.strap);d(11,11,1,6,o.strap)}
+    d(8,8,1,2,OUT);d(11,8,1,2,OUT);
+    if(o.lamp){d(9,3,2,2,'#fff4a8');d(7,3,2,1,'rgba(255,255,255,.35)')}
+    d(13,11,1,6,'rgba(0,0,0,.22)');d(12,17,1,4,'rgba(0,0,0,.2)');
+  }
+  parts.forEach(p=>R(ctx,OUT,ox+(p[0]-1)*s,oy+(p[1]-1)*s,(p[2]+2)*s,(p[3]+2)*s));
+  parts.forEach(p=>R(ctx,p[4],ox+p[0]*s,oy+p[1]*s,p[2]*s,p[3]*s));
+  det.forEach(p=>R(ctx,p[4],ox+p[0]*s,oy+p[1]*s,p[2]*s,p[3]*s));
+  if(o.tool==='pick'){
+    const hn=[[15,18],[15,17],[16,16],[16,15],[16,14],[17,13],[17,12],[17,11],[17,10],[17,9]];
+    hn.forEach(h=>R(ctx,OUT,ox+(h[0]-1)*s,oy+(h[1]-1)*s,3*s,3*s));R(ctx,OUT,ox+13*s,oy+6*s,8*s,4*s);
+    hn.forEach(h=>R(ctx,'#a86a32',ox+h[0]*s,oy+h[1]*s,s,s));
+    R(ctx,'#c5cdf0',ox+14*s,oy+7*s,6*s,2*s);R(ctx,'#8f98c4',ox+14*s,oy+8*s,6*s,s);R(ctx,'#e8ecff',ox+15*s,oy+7*s,2*s,s);
+    R(ctx,'#c5cdf0',ox+14*s,oy+9*s,s,s);R(ctx,'#c5cdf0',ox+19*s,oy+9*s,s,s);
+  }
+  if(o.tool==='hammer'){
+    R(ctx,OUT,ox+15*s,oy+9*s,3*s,11*s);R(ctx,OUT,ox+13*s,oy+7*s,7*s,5*s);
+    R(ctx,'#a86a32',ox+16*s,oy+10*s,s,9*s);R(ctx,'#aeb7dd',ox+14*s,oy+8*s,5*s,3*s);R(ctx,'#7c86b0',ox+14*s,oy+10*s,5*s,s);R(ctx,'#e8ecff',ox+14*s,oy+8*s,2*s,s);
+  }
+}
+const PM={skin:'#f2b48a',hat:'#f2b136',hatD:'#c47f1c',shirt:'#3f7fd6',strap:'#ffd35a',pants:'#5a4636',boots:'#33241b',pack:'#8a5a2b',lamp:1,tool:'pick'};
+const PM2=Object.assign({},PM,{shirt:'#d0603a',hat:'#7ad06a',hatD:'#4a9a3e',pack:'#5a4a8a',strap:'#f0e2c0'});
+const PB={skin:'#e0a074',hair:'#4a2c17',beard:'#5a3418',shirt:'#9a4a32',pants:'#4a3a33',boots:'#2b1e18',apron:'#3d2f2a',tool:'hammer'};
+const PS={skin:'#f2b48a',hat:'#d94a86',hatD:'#a02c62',shirt:'#f0e2c0',pants:'#5a3a6a',boots:'#3a2438',apron:'#ffd8a0',strap:'#d94a86'};
+const PY={cloak:'#3d2a86',hood:'#2a1c62',tool:'pick'};
+
+function crystal(x,cx,by,h,c1,c2){
+  const b=Math.round(h*.6),m=Math.round(h*.28),t=Math.max(1,h-b-m);
+  R(x,c2,cx-2,by-b,5,b);R(x,c1,cx-2,by-b,2,b);
+  R(x,c2,cx-1,by-b-m,3,m);R(x,c1,cx-1,by-b-m,1,m);
+  R(x,c1,cx,by-h,1,t);
+  R(x,'#ffffff',cx-1,by-b+1,1,Math.max(2,b>>2));
+}
+function crystalDown(x,cx,by,h,c1,c2){x.save();x.translate(0,2*by);x.scale(1,-1);crystal(x,cx,by,h,c1,c2);x.restore()}
+function pine(x,cx,by,h,c1,c2){
+  const n=Math.max(2,(h/5)|0);R(x,'#3a2418',cx-1,by-3,2,3);
+  for(let k=0;k<n;k++){const w=3+k*2,y0=by-3-(n-k)*4;R(x,c1,cx-((w-1)>>1),y0,w,5);R(x,c2,cx+((w-1)>>1)-1,y0,1,5)}
+}
+function house(x,px,py,w,h,wall,roof,win){
+  R(x,wall,px,py,w,h);
+  for(let j=0;w+4-2*j>0&&j<9;j++)R(x,roof,px-2+j,py-1-j,w+4-2*j,1);
+  const wx=px+((w*.55)|0);R(x,win,wx,py+4,4,4);R(x,'rgba(255,200,90,.22)',wx-3,py+1,10,10);
+}
+
+/* ---------- adegan 128x72 (gameplay, berita, trailer) ---------- */
+const SC={};
+SC.mine=function(x,w,h,t){
+  grad(x,w,h,['#0b0a24','#181144','#0a081c'],4);
+  const r=mulberry(11);
+  for(let i=0;i<14;i++)R(x,'#100c30',i*10+((r()*4)|0),0,7,4+((r()*12)|0));
+  R(x,'#150f34',0,58,w,h-58);R(x,'#231a52',0,58,w,2);
+  for(let i=0;i<40;i++)R(x,r()<.5?'#0e0a26':'#2b2060',r()*w,60+r()*12,2,1);
+  R(x,'rgba(124,108,255,.14)',6,30,38,30);R(x,'rgba(79,227,255,.14)',92,28,38,32);
+  crystal(x,20,60,24,'#b9a5ff','#5a3fd6');crystal(x,32,60,15,'#7df2ff','#1f9ac4');
+  crystal(x,104,60,26,'#7df2ff','#1f9ac4');crystal(x,116,60,14,'#b9a5ff','#5a3fd6');
+  if((t>>1)%2){R(x,'#fff',22,38,1,1);R(x,'#fff',106,34,1,1)}else{R(x,'#fff',33,47,1,1);R(x,'#fff',117,47,1,1)}
+  R(x,'#3a3f6a',78,55,12,5);R(x,'#ffd35a',80,54,3,2);R(x,'#7df2ff',85,55,2,2);
+  person(x,52,38,1,PM);
+};
+SC.collect=function(x,w,h,t){
+  grad(x,w,52,['#2f4a9a','#cf7a8a','#ffc27a'],2);
+  R(x,'#2e5a4a',0,44,w,10);for(let i=0;i<w;i+=2)R(x,'#2a4f45',i,42+Math.round(Math.sin(i*.09)*3),2,8);
+  R(x,'#3f8a45',0,54,w,18);R(x,'#7fd05a',0,54,w,2);
+  const r=mulberry(4);for(let i=0;i<24;i++)R(x,r()<.5?'#2f6f3a':'#5ab84a',r()*w,57+r()*14,1,2);
+  pine(x,12,56,34,'#1d5a3a','#ffb36a');pine(x,28,58,26,'#1d5a3a','#ffb36a');pine(x,104,56,38,'#1d5a3a','#ffb36a');pine(x,120,58,28,'#1d5a3a','#ffb36a');
+  R(x,'#5a6088',78,58,14,7);R(x,'#7a82a8',80,57,10,3);R(x,'#ffd35a',82,58,3,2);R(x,'#7df2ff',87,59,2,2);R(x,'#5a6088',96,62,9,5);
+  person(x,46,40,1,PM);
+};
+SC.trade=function(x,w,h,t){
+  R(x,'#2b1a12',0,0,w,h);for(let i=0;i<w;i+=16)R(x,'#33201a',i,0,1,h);
+  const r=mulberry(5),C=['#ffd35a','#4fe3ff','#ff5d8f','#8bf07a','#c9a8ff'];
+  [16,30,44].forEach(y=>{R(x,'#5a3620',0,y,w,3);R(x,'#3a2212',0,y+3,w,1);for(let i=0;i<10;i++)R(x,C[(r()*5)|0],4+i*12+((r()*4)|0),y-4,4,4)});
+  R(x,'rgba(255,170,60,'+(0.10+(t%3)*0.03)+')',0,0,w,h);
+  for(let i=0;i*8<w;i++)R(x,i%2?'#e8574a':'#ffd35a',i*8,0,8,6);
+  person(x,84,34,1,PS);person(x,22,36,1,PM);
+  R(x,'#7a4a24',0,54,w,18);R(x,'#a0682f',0,54,w,2);R(x,'#ffd35a',60,51,4,3);R(x,'#7df2ff',68,50,4,4);
+};
+SC.upgrade=function(x,w,h){
+  grad(x,w,h,['#161d5c','#0a0d2e'],4);
+  R(x,'#0a0d2b',6,6,w-12,h-12);
+  R(x,'#3947b8',6,6,w-12,1);R(x,'#3947b8',6,h-7,w-12,1);R(x,'#3947b8',6,6,1,h-12);R(x,'#3947b8',w-7,6,1,h-12);
+  x.textBaseline='top';x.fillStyle='#ffd35a';x.font='700 8px "Pixelify Sans",monospace';x.fillText('Upgrade Pickaxe',12,10);
+  drawMap(x,ICONS.pick,14,26,2);
+  x.fillStyle='#eaeeff';x.font='700 7px "Pixelify Sans",monospace';x.fillText('Lv 1  >  Lv 2',46,26);
+  R(x,'#1c2466',46,38,70,5);R(x,'#4be07a',46,38,42,5);
+  R(x,'#5f43f2',14,54,46,10);R(x,'#22a85a',66,54,46,10);
+  x.fillStyle='#fff';x.font='700 6px "Pixelify Sans",monospace';x.fillText('Upgrade',20,56);x.fillText('Beli',80,56);
+};
+SC.explore=function(x,w,h,t){
+  grad(x,w,h,['#2b6a8a','#7ac0d0','#2a7aa8'],4);
+  R(x,'#3a4a5a',0,0,40,h);R(x,'#4a5a6a',30,0,10,h);R(x,'#3a4a5a',92,0,36,h);
+  R(x,'#3f8a45',0,0,40,6);R(x,'#3f8a45',92,4,36,5);R(x,'#6ab24a',0,0,30,3);
+  for(let i=0;i<7;i++)R(x,'#2f6f3a',2+i*5,8+((i*7)%12),3,4);
+  R(x,'#8fd8f5',44,4,40,48);
+  for(let i=0;i<20;i++){const yy=4+((t*3+i*7)%42);R(x,'#f4feff',45+i*2,yy,1,6)}
+  R(x,'#2a7aa8',28,52,72,20);R(x,'#e8fbff',42,50,44,3);
+  for(let i=0;i<8;i++)R(x,'#bff0ff',34+i*8+((t+i)%3),56+(i%3)*4,4,1);
+  R(x,'#5a6a7a',96,44,32,28);R(x,'#3a4a5a',96,44,32,3);
+  person(x,102,22,1,PM);
+};
+SC.interact=function(x,w,h,t){
+  grad(x,w,52,['#141a4a','#2a2a6a','#3a4a7a'],4);
+  const r=mulberry(8);for(let i=0;i<20;i++)R(x,'#fff',r()*w,r()*30,1,1);
+  R(x,'#2f6a3a',0,52,w,20);R(x,'#5aa84a',0,52,w,2);
+  pine(x,10,54,30,'#173a3a','#ffb36a');pine(x,120,54,34,'#173a3a','#ffb36a');
+  R(x,'#6b4a2e',50,26,44,26);R(x,'#7d5a38',50,26,44,2);
+  for(let j=0;j<12;j++)R(x,'#8a3a2a',46+j,25-j,56-2*j,1);
+  R(x,'#3a2416',68,36,10,16);R(x,'#ffd35a',56,32,7,7);R(x,'#ffd35a',82,32,7,7);
+  R(x,'rgba(255,200,90,'+(0.10+(t%4)*0.02)+')',40,24,64,30);
+  R(x,'#3a2416',59,32,1,7);R(x,'#3a2416',85,32,1,7);
+  person(x,18,34,1,PM);person(x,98,34,1,PS);
+  R(x,'#fff',34,24,18,9);R(x,'#fff',38,33,3,2);R(x,'#12122b',38,28,2,2);R(x,'#12122b',42,28,2,2);R(x,'#12122b',46,28,2,2);
+};
+SC.deep=function(x,w,h,t){
+  grad(x,w,h,['#04061a','#0e1a45','#050818'],4);
+  const r=mulberry(21);for(let i=0;i<12;i++)R(x,'#0a0f2e',i*11+((r()*5)|0),0,8,6+((r()*14)|0));
+  for(let i=0;i<7;i++){R(x,'#1a2050',8+i*9,24+i*6,44-i*2,6);R(x,'#2a3270',8+i*9,24+i*6,44-i*2,1)}
+  R(x,'rgba(79,227,255,.10)',70,10,56,60);
+  crystal(x,92,66,30,'#7df2ff','#1f9ac4');crystal(x,108,66,44,'#8ff5ff','#22a6d0');crystal(x,120,66,22,'#7df2ff','#1f9ac4');crystal(x,80,66,14,'#c9a8ff','#5a3fd6');
+  if((t>>1)%2)R(x,'#fff',110,26,1,1);else R(x,'#fff',93,48,1,1);
+  R(x,'#0a0f2e',0,66,w,6);
+  person(x,60,38,1,PM);
+};
+SC.festival=function(x,w,h,t){
+  grad(x,w,h,['#2a1450','#6a2a70','#f09a5a'],4);
+  const C=['#ff5d8f','#ffd35a','#4fe3ff','#8bf07a','#c9a8ff'];
+  for(let i=0;i<w;i++)R(x,'#12122b',i,6+Math.round(Math.sin(i*.05)*4),1,1);
+  for(let k=0;k<11;k++){const px=k*12+4,py=6+Math.round(Math.sin(px*.05)*4);R(x,C[k%5],px,py+1,7,4);R(x,C[k%5],px+1,py+5,5,2);R(x,C[k%5],px+2,py+7,3,1)}
+  R(x,'#3a2a4a',0,56,w,16);R(x,'#5a4a6a',0,56,w,2);
+  [[20,26],[64,20],[108,28]].forEach((a,i)=>{R(x,'#12122b',a[0],a[1]-10,1,10);R(x,(t+i)%3?'#ffd35a':'#ffb347',a[0]-2,a[1],5,6);R(x,'rgba(255,200,90,.16)',a[0]-10,a[1]-6,21,20)});
+  person(x,30,34,1,PM);person(x,78,34,1,PM2);
+};
+SC.maint=function(x,w,h,t){
+  grad(x,w,h,['#141a3a','#2a2a5a','#3a3a6a'],4);
+  R(x,'#2a2250',0,54,w,18);R(x,'#3c3468',0,54,w,2);
+  R(x,'#5a3a1c',60,20,3,36);R(x,'#c98a2a',44,14,36,18);R(x,'#8a5a1a',44,14,36,2);
+  R(x,'#e8574a',60,18,3,8);R(x,'#e8574a',60,28,3,3);
+  for(let i=0;i<8;i++)R(x,i%2?'#ffd35a':'#12122b',6+i*6,48,6,3);
+  R(x,'#5a648f',100,44,16,12);R(x,'#a4aed6',102,40,12,4);R(x,'#7df2ff',104,47,4,3);
+  person(x,14,32,1,PM);person(x,80,32,1,PM2);
+};
+function paint(c,name,t){const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.clearRect(0,0,c.width,c.height);SC[name](x,c.width,c.height,t||0)}
+
+/* ---------- karakter ---------- */
+const CH={
+ miner:{name:'Junet',tag:'Starter',tc:'t-starter',pal:PM,bg:['#0e1442','#231a5e','#100c30'],floor:'#1a1440',
+  desc:'Penambang Lincah. Kamu memulai sebagai penambang biasa, namun dengan tekad yang besar untuk menjadi lebih dari sekadar NPC.',
+  say:'Tambang ini gelap, tapi aku bawa lentera dan tekad. Ayo turun bersama.',stats:[['Tambang',5],['Kerajinan',2],['Dagang',2],['Misteri',1]]},
+ blacksmith:{name:'Aron',tag:'Crafting',tc:'t-craft',pal:PB,bg:['#1a0e14','#3a1a1a','#20100c'],floor:'#2a1812',
+  desc:'Penambang Berani. Tempa peralatan, tingkatkan kualitas hidupmu, dan bantu warga desa.',
+  say:'Bawa bijihnya ke sini. Api tempaku bisa mengubah batu jadi kekuatan.',stats:[['Tambang',2],['Kerajinan',5],['Dagang',3],['Misteri',1]]},
+ merchant:{name:'Pak Karto & Bu Sekar',tag:'Trade',tc:'t-trade',pal:PS,bg:['#2a1638','#5a2a58','#2a1430'],floor:'#3a2010',
+  desc:'Pedagang penuh peluang. Tukar hasil tambangmu dengan barang langka, atau bangun bisnis sendiri.',
+  say:'Emas dan kristal selalu ada pembelinya. Mau tukar apa hari ini?',stats:[['Tambang',1],['Kerajinan',2],['Dagang',5],['Misteri',2]]},
+ mystery:{name:'Mysterious NPC',tag:'Secret',tc:'t-secret',pal:PY,bg:['#07061a','#1a1248','#0a0820'],floor:'#0f0c2a',
+  desc:'Siapa dia sebenarnya? Sosok misterius yang muncul di tempat tersembunyi. Punya informasi penting… atau mungkin, kunci menuju takdirmu.',
+  say:'Kamu bukan orang pertama yang mencari pintu itu. Tapi mungkin yang terakhir.',stats:[['Tambang',3],['Kerajinan',1],['Dagang',1],['Misteri',5]]}
+};
+function charScene(x,w,h,id,s,t){
+  const C=CH[id],k=s/2,fy=Math.round(h*.86),fl=(t%4)<2,bob=(t%6)<3?0:-1;
+  grad(x,w,h,C.bg,4);R(x,C.floor,0,fy,w,h-fy);R(x,'rgba(255,255,255,.07)',0,fy,w,1);
+  if(id==='miner'){
+    R(x,'rgba(124,108,255,.12)',w*.05,fy-34*k,w*.28,34*k);R(x,'rgba(79,227,255,.12)',w*.68,fy-38*k,w*.28,38*k);
+    crystal(x,w*.16,fy,18*k,'#b9a5ff','#5a3fd6');crystal(x,w*.27,fy,10*k,'#7df2ff','#1f9ac4');
+    crystal(x,w*.84,fy,22*k,'#7df2ff','#1f9ac4');crystal(x,w*.73,fy,12*k,'#b9a5ff','#5a3fd6');
+  }
+  if(id==='blacksmith'){
+    R(x,'rgba(255,140,50,.12)',w*.45,fy-44*k,w*.55,44*k);
+    R(x,'#2b2b44',w*.68,fy-14*k,14*k,14*k);R(x,'#151528',w*.68+2*k,fy-11*k,10*k,8*k);
+    R(x,fl?'#ff9d2e':'#ffb347',w*.68+3*k,fy-9*k,8*k,5*k);R(x,'#ffe27a',w*.68+4*k,fy-8*k,5*k,3*k);R(x,fl?'#ff5a2e':'#ff7a3d',w*.68+4*k,fy-12*k,3*k,4*k);
+    R(x,'#6a7098',w*.10,fy-9*k,16*k,3*k);R(x,'#4a4f78',w*.12,fy-6*k,12*k,3*k);R(x,'#3a3f66',w*.14,fy-3*k,8*k,3*k);
+  }
+  if(id==='merchant'){
+    for(let i=0;i*6*k<w;i++){const c=i%2?'#ff5d8f':'#ffd35a';R(x,c,i*6*k,0,6*k,6*k);R(x,c,i*6*k+k,6*k,4*k,2*k)}
+    R(x,'rgba(255,200,90,.10)',0,0,w,h);
+  }
+  if(id==='mystery'){
+    disc(x,'rgba(124,108,255,.18)',w*.5,fy-24*k,26*k);
+    R(x,'rgba(150,120,255,.10)',((t*2)%8),fy-14*k,w,14*k);
+    for(let i=0;i<3;i++)R(x,'#7df2ff',w*(.18+.3*i),fy-(30+((t+i*3)%8))*k,k*1.5,k*1.5);
+  }
+  const sw=20*s,sh=22*s;
+  person(x,Math.round(w*.5-sw/2),Math.round(fy-sh+s)+bob,s,C.pal);
+  if(id==='merchant'){
+    R(x,'#7a4a24',0,fy-8*k,w,h-fy+8*k);R(x,'#a0682f',0,fy-8*k,w,k);
+    R(x,'#ffd35a',w*.18,fy-11*k,4*k,3*k);R(x,'#7df2ff',w*.28,fy-12*k,4*k,4*k);R(x,'#ff5d8f',w*.74,fy-11*k,4*k,3*k);
+  }
+}
+
+/* ---------- hero, mulut tambang, lantai gua, lapisan tanah ---------- */
+function ridgeY(i,base,amp,ph){return base+Math.sin(i*.021+ph)*amp+Math.sin(i*.057+ph*2)*amp*.45}
+function ridge(x,base,amp,ph,col){for(let i=0;i<480;i+=2){const y=ridgeY(i,base,amp,ph);R(x,col,i,y,2,300-y)}}
+function drawHero(c){
+  const x=c.getContext('2d');x.imageSmoothingEnabled=false;
+  grad(x,480,205,['#22124a','#4b2472','#a24a88','#ff8a5a','#ffc873'],4);
+  const r=mulberry(3);
+  for(let i=0;i<46;i++)R(x,'rgba(255,240,220,.75)',r()*480,r()*90,1,1);
+  [[30,40,90],[150,26,70],[330,52,110],[420,20,64],[240,70,84],[70,92,60]].forEach(a=>{const cx=a[0],cy=a[1],cw=a[2];R(x,'#5a3a8a',cx,cy,cw,5);R(x,'#7b4a9c',cx+8,cy-4,cw-24,4);R(x,'#ff9a6a',cx+2,cy+5,cw-6,2);R(x,'#ffb47a',cx+10,cy+7,cw-30,1)});
+  const sx=300,sy=180;
+  disc(x,'rgba(255,190,90,.10)',sx,sy,64);disc(x,'rgba(255,200,110,.14)',sx,sy,46);disc(x,'#ffd970',sx,sy,28);disc(x,'#fff1b0',sx,sy,22);
+  ridge(x,182,8,1,'#5a3a80');
+  ridge(x,200,10,3,'#3a2a6a');
+  [18,46,74,150,178,206,236,262].forEach((cx,i)=>pine(x,cx,Math.round(ridgeY(cx,200,10,3))+6,26+((i*7)%14),'#1c2a5c','#ff9a5a'));
+  ridge(x,222,8,5,'#22224f');
+  house(x,96,214,24,14,'#241f4a','#181438','#ffcf6a');
+  for(let i=0;i<7;i++){R(x,'#3b2f5c',292-i*7,214+i*6,200,90);R(x,'#4f9a48',292-i*7,214+i*6,i?7:200,3)}
+  R(x,'#b6e070',292,214,188,1);
+  for(let i=0;i<40;i++)R(x,r()<.5?'#54467a':'#2a2148',300+r()*180,222+r()*70,2,1);
+  R(x,'#10162f',0,274,480,26);
+  for(let i=0;i<60;i++)R(x,'#0c1226',r()*480,268+r()*6,2,4+((r()*4)|0));
+  pine(x,458,216,110,'#152552','#ff9a5a');pine(x,432,216,84,'#152552','#ff9a5a');
+}
+function drawEntrance(c){
+   const x=c.getContext('2d');x.imageSmoothingEnabled=false;
+  R(x,'#05060f',0,0,480,300);
+  const r=mulberry(9);
+  for(let yy=0;yy<300;yy+=6)for(let xx=0;xx<480;xx+=6){const a=r();R(x,a<.5?'#131838':a<.8?'#1a2046':'#0f1330',xx,yy,6,6)}
+  for(let i=0;i<260;i++)R(x,r()<.5?'#252c68':'#0b0e26',r()*480,r()*300,2,1);
+}
+
+function strata(c,kind,seed){
+  const x=c.getContext('2d');x.imageSmoothingEnabled=false;const r=mulberry(seed);
+  const cols=kind==='surface'?['#1a1236','#2a1c4a','#3a2a5a']:['#0d1030','#161b47','#252d70'];
+  const edge=i=>Math.round(15+5*Math.sin(i*.11+seed)+3*Math.sin(i*.29+seed*2));
+  for(let i=0;i<360;i++){
+    const h=edge(i)+(r()<.07?Math.round(r()*7):0);
+    for(let y=0;y<h;y++){let col=cols[0];if(y>h-3)col=cols[2];else if(y>h-8)col=cols[1];if(r()<.06)col='#0a0c26';R(x,col,i,y,1,1)}
+    if(kind==='surface'&&r()<.15)R(x,'#3a8a4a',i,0,1,1+((r()*3)|0));
+  }
+  for(let n=0;n<26;n++)R(x,['#ffd35a','#7df2ff','#c9a8ff'][n%3],(r()*358)|0,(r()*10)|0,1,1);
+  [[40,'#7df2ff','#1f9ac4'],[150,'#c9a8ff','#5a3fd6'],[262,'#7df2ff','#1f9ac4'],[330,'#c9a8ff','#5a3fd6']].forEach((a,i)=>{
+    crystalDown(x,a[0]+((seed*7+i)%9),edge(a[0])-1,7+((i*3+seed)%5),a[1],a[2]);
+  });
+}
+function caveTexture(){
+  const p=cv(64,64),x=p[1],r=mulberry(77);
+  R(x,'#0a0e2b',0,0,64,64);
+  for(let i=0;i<320;i++)R(x,['#0e1438','#080b22','#131a45','#0c1130'][(r()*4)|0],(r()*64)|0,(r()*64)|0,1+((r()*2)|0),1);
+  for(let i=0;i<10;i++)R(x,'#1a2260',(r()*64)|0,(r()*64)|0,1,1);
+  for(let j=0;j<4;j++){const yy=j*16+((r()*4)|0);R(x,'rgba(255,255,255,.025)',0,yy,64,1);R(x,'rgba(0,0,0,.25)',0,yy+1,64,1)}
+  return p[0].toDataURL();
+}
+function makeLantern(cls){const d=document.createElement('div');d.className='lantern '+(cls||'');d.setAttribute('aria-hidden','true');const p=cv(40,36);drawMap(p[1],ICONS.lantern,0,0,4);d.appendChild(p[0]);return d}
+
+/* =====================================================
+   SUARA (WebAudio, dibuat lewat kode — tanpa file audio)
+   ===================================================== */
+let AC=null,soundOn=true;
+function actx(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC}
+function tone(f,d,type,v,slide,when){const a=actx();if(!a||!soundOn)return;const t=a.currentTime+(when||0),o=a.createOscillator(),g=a.createGain();o.type=type||'square';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t+d);g.gain.setValueAtTime(v||.05,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.03)}
+function noise(d,v,when){const a=actx();if(!a||!soundOn)return;const n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);for(let i=0;i<n;i++)ch[i]=(Math.random()*2-1)*(1-i/n);const s=a.createBufferSource();s.buffer=b;const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=900;const g=a.createGain();g.gain.value=v||.08;s.connect(f);f.connect(g);g.connect(a.destination);s.start(a.currentTime+(when||0))}
+const SFX={
+ pick(){noise(.06,.09);tone(180,.08,'square',.04,-90)},
+ gem(){[660,880,1320].forEach((f,i)=>tone(f,.12,'square',.045,0,i*.07))},
+ coin(){tone(988,.06,'square',.04);tone(1319,.12,'square',.04,0,.06)},
+ boom(){noise(.5,.2);tone(90,.4,'sawtooth',.1,-55)},
+ dig(){for(let i=0;i<5;i++)noise(.08,.12,i*.07);tone(70,.5,'sawtooth',.07,-30)},
+ gate(){tone(60,1.2,'sawtooth',.09,-20);for(let i=0;i<6;i++)noise(.1,.1,i*.2)},
+ ok(){[523,659,784,1046].forEach((f,i)=>tone(f,.14,'square',.05,0,i*.09))}
+};
+function sfx(n){try{if(soundOn&&SFX[n])SFX[n]()}catch(e){}}
+
+/* =====================================================
+   DEBU & PARTIKEL (satu kanvas untuk seluruh halaman)
+   ===================================================== */
+const dust=$('#dust'),dx=dust.getContext('2d');let DW=0,DH=0,prog=0,bursts=[];
+function rsz(){DW=dust.width=innerWidth;DH=dust.height=innerHeight}
+rsz();
+const motes=[];for(let i=0;i<70;i++)motes.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,s:Math.random()<.25?4:2,vx:(Math.random()-.5)*.25,vy:-.04-Math.random()*.22,ph:Math.random()*6.28,c:i%3});
+function burst(x,y,c,n,big){for(let i=0;i<n;i++){const a=Math.random()*6.28,sp=(big?3.2:1.8)*(.4+Math.random());bursts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1.2,l:30+Math.random()*24,c:Array.isArray(c)?c[i%c.length]:c,s:Math.random()<.4?4:2})}}
+function dustFrame(now){
+  dx.clearRect(0,0,DW,DH);
+  const pal=prog<.12?['#ffe28a','#fff0a8','#ffe28a']:(prog<.3?['#ffd9a0','#ffe9b8','#ffcf8a']:['#9fd8ff','#c9a8ff','#7df2ff']);
+  for(let i=0;i<motes.length;i++){const m=motes[i];
+    if(!reduce){m.x+=m.vx+Math.sin(m.ph+now*.0006)*.15;m.y+=m.vy;if(m.y<-6){m.y=DH+6;m.x=Math.random()*DW}if(m.x<-6)m.x=DW+6;if(m.x>DW+6)m.x=-6}
+    dx.globalAlpha=.18+.42*Math.abs(Math.sin(m.ph+now*.0021));dx.fillStyle=pal[m.c];dx.fillRect(m.x|0,m.y|0,m.s,m.s)}
+  dx.globalAlpha=1;
+  for(let i=0;i<bursts.length;i++){const b=bursts[i];b.x+=b.vx;b.y+=b.vy;b.vy+=.14;b.l--;dx.globalAlpha=Math.min(1,b.l/16);dx.fillStyle=b.c;dx.fillRect(b.x|0,b.y|0,b.s,b.s)}
+  dx.globalAlpha=1;bursts=bursts.filter(b=>b.l>0);
+  requestAnimationFrame(dustFrame);
+}
+
+/* kursor pickaxe */
+(function(){
+  const p=cv(32,32),x=p[1];x.translate(16,16);x.rotate(-Math.PI/4);x.translate(-12,-12);drawMap(x,ICONS.pick,0,0,2);
+  const u=p[0].toDataURL(),st=document.createElement('style');
+  st.textContent='*{cursor:url('+u+') 6 6,auto}a,button,[role=button],.gem,canvas#game{cursor:url('+u+') 6 6,pointer}';
+  document.head.appendChild(st);
+})();
+
+/* =====================================================
+   TOAST & NOTIFIKASI AREA
+   ===================================================== */
+const toastEl=$('#toast'),zoneEl=$('#zone');let toastT=0;
+function toast(msg){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),2600)}
+function zoneShow(label,name,right){$('#zoneL').textContent=label;$('#zoneN').textContent=name;$('#zoneD').textContent=right||'';zoneEl.classList.remove('show');void zoneEl.offsetWidth;zoneEl.classList.add('show')}
+
+/* =====================================================
+   SCROLL: kedalaman, cahaya lentera, balok, gauge
+   ===================================================== */
+const nav=$('#nav'),gauge=$('#gauge'),rail=$('#rail'),mark=$('#mark'),depthNum=$('#depthNum'),scene=$('#scene');
+let secs=[],nodes=[],maxScroll=1,activeIdx=-1,entered=false,ticking=false;
+function layout(){
+  secs=$$('main>section').map(el=>({el:el,id:el.id,depth:+el.dataset.depth,zone:el.dataset.zone,top:el.offsetTop}));
+  maxScroll=Math.max(1,root.scrollHeight-innerHeight);
+  if(!nodes.length){secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='node';b.setAttribute('aria-label',s.zone+', kedalaman '+s.depth+' meter');b.dataset.tip=s.zone+', −'+s.depth+' m';b.addEventListener('click',()=>goTo(s.id));rail.appendChild(b);nodes.push(b)})}
+  secs.forEach((s,i)=>{nodes[i].style.top=clamp(s.top/maxScroll*100,0,100)+'%'});
+}
+function depthAt(y){
+  if(!secs.length)return 0;
+  if(y>=maxScroll-2)return secs[secs.length-1].depth;
+  let i=0;for(let k=0;k<secs.length;k++)if(y>=secs[k].top)i=k;
+  const a=secs[i],b=secs[i+1];if(!b)return a.depth;
+  return lerp(a.depth,b.depth,clamp((y-a.top)/(b.top-a.top),0,1));
+}
+function onScroll(){
+  ticking=false;
+  const y=window.scrollY,p=clamp(y/maxScroll,0,1);prog=p;
+  root.style.setProperty('--dark',(.08+.2*p).toFixed(3));
+  root.style.setProperty('--beam',clamp((y-innerHeight*.5)/(innerHeight*.45),0,1).toFixed(3));
+  nav.classList.toggle('solid',y>30);
+  mark.style.top=(p*100)+'%';
+  const d=Math.round(depthAt(y));depthNum.textContent=d?'−'+d:'0';
+  if(!reduce&&y<innerHeight*1.2)scene.style.transform='translate3d(0,'+(y*.3).toFixed(1)+'px,0)';
+  let ai=0;secs.forEach((s,i)=>{if(y+innerHeight*.45>=s.top)ai=i});
+  if(ai!==activeIdx){
+    const first=activeIdx===-1;activeIdx=ai;const s=secs[ai];
+    $$('.links a').forEach(a=>a.classList.toggle('on',a.dataset.go===s.id));
+    nodes.forEach((n,i)=>n.classList.toggle('on',i===ai));
+    if(entered&&!first)zoneShow('Area baru',s.zone,'−'+s.depth+' m');
+  }
+}
+window.addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(onScroll)}},{passive:true});
+window.addEventListener('resize',()=>{rsz();layout();onScroll()});
+let mxq=false,mxx=0,mxy=0;
+window.addEventListener('pointermove',e=>{mxx=e.clientX;mxy=e.clientY;if(!mxq){mxq=true;requestAnimationFrame(()=>{mxq=false;root.style.setProperty('--mx',mxx+'px');root.style.setProperty('--my',mxy+'px')})}},{passive:true});
+
+/* =====================================================
+   TRANSISI "MENGGALI" antar section
+   ===================================================== */
+const wipe=$('#wipe'),wx=wipe.getContext('2d'),wtxt=$('#wipeTxt'),TS=64;
+const rockTiles=[0,1,2,3].map(n=>{
+  const p=cv(16,16),x=p[1],r=mulberry(n*13+7);
+  R(x,mix('#262b5a','#343a70',r()),0,0,16,16);
+  for(let i=0;i<30;i++)R(x,r()<.5?'#1a1e46':'#484f8c',(r()*16)|0,(r()*16)|0,r()<.3?2:1,1);
+  R(x,'rgba(255,255,255,.10)',0,0,16,1);R(x,'rgba(255,255,255,.06)',0,0,1,16);R(x,'rgba(0,0,0,.35)',0,15,16,1);R(x,'rgba(0,0,0,.28)',15,0,1,16);
+  if(n%2){R(x,'#ffd35a',3+n,4,2,2);R(x,'#7df2ff',10,10,2,2)}
+  return p[0];
+});
+let digging=false;
+function dig(mid,label){
+  if(reduce||digging){mid();return}
+  digging=true;
+  const W=wipe.width=innerWidth,H=wipe.height=innerHeight,cols=Math.ceil(W/TS),rows=Math.ceil(H/TS),tiles=[];
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)tiles.push({x:c*TS,y:r*TS,d:Math.random()*240+Math.abs(c-cols/2)*8,v:(Math.random()*4)|0});
+  wx.imageSmoothingEnabled=false;wtxt.innerHTML='<b>'+label+'</b><small>Menggali…</small>';
+  sfx('dig');
+  const T0=performance.now();let phase=0,t1=0;
+  (function frame(now){
+    wx.clearRect(0,0,W,H);
+    if(phase===0){
+      let done=true;
+      tiles.forEach(k=>{const a=clamp((now-T0-k.d)/150,0,1);if(a<1)done=false;if(a>0){const sz=TS*(.55+.45*a)+1;wx.drawImage(rockTiles[k.v],k.x+(TS-sz)/2,k.y+(TS-sz)/2,sz,sz)}});
+      if(done){wtxt.classList.add('on');mid();phase=1;t1=now}
+    }else{
+      const t2=now-t1;
+      if(t2<180){tiles.forEach(k=>wx.drawImage(rockTiles[k.v],k.x,k.y,TS+1,TS+1))}
+      else{
+        wtxt.classList.remove('on');
+        let alive=false;
+        tiles.forEach(k=>{
+          const tt=t2-180-k.d*.5;
+          if(tt<0){wx.drawImage(rockTiles[k.v],k.x,k.y,TS+1,TS+1);alive=true;return}
+          const f=tt/420;if(f>=1)return;alive=true;
+          wx.globalAlpha=1-f;wx.drawImage(rockTiles[k.v],k.x,k.y+f*f*280,TS+1,TS+1);wx.globalAlpha=1;
+        });
+        if(!alive){wx.clearRect(0,0,W,H);digging=false;return}
+      }
+    }
+    requestAnimationFrame(frame);
+  })(T0);
+}
+function goTo(id){
+  const s=secs.find(q=>q.id===id);if(!s)return;
+  const y=Math.min(s.top,maxScroll);if(Math.abs(window.scrollY-y)<8)return;
+  if(reduce){window.scrollTo({top:y,behavior:'smooth'});return}
+  dig(()=>window.scrollTo(0,y),'−'+Math.round(depthAt(y))+' m');
+}
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]');if(g){e.preventDefault();goTo(g.dataset.go);return}
+  const soon=e.target.closest('[data-soon]');if(soon&&soon.getAttribute('href')==='#'){e.preventDefault();toast('Tautan unduhan belum dipasang. Isi href tombol ini di HTML.');return}
+  if(!e.target.closest('#game,.gem,dialog'))burst(e.clientX,e.clientY,['#c9b48a','#8a7a5a','#e8d8b0'],7);
+  if(!e.target.closest('#game,.gem'))sfx('pick');
+  const p=e.target.closest('[data-play]');if(p){e.preventDefault();enterGame()}
+});
+
+/* =====================================================
+   GERBANG: PLAY NOW -> game PHP
+   ===================================================== */
+const gate=$('#gate'),gDepth=$('#gDepth'),gMsg=$('#gMsg'),gBar=$('#gBar'),gFail=$('#gFail'),gFailTxt=$('#gFailTxt');
+let entering=false;
+function enterGame(){
+  if(entering)return;entering=true;
+  sfx('gate');gate.classList.add('on');gate.setAttribute('aria-hidden','false');gFail.hidden=true;
+  const from=Math.round(depthAt(window.scrollY)),to=320,msgs=[[0,'Menyalakan lentera…'],[34,'Menuruni tangga tambang…'],[70,'Gerbang terbuka. Selamat datang, penambang.']];
+  let p=0;
+  const iv=setInterval(()=>{
+    p+=reduce?25:4;const q=Math.min(100,p);
+    gBar.style.width=q+'%';gDepth.textContent=Math.round(lerp(from,to,q/100));
+    gMsg.textContent=msgs.slice().reverse().find(m=>q>=m[0])[1];
+    if(p>=100){clearInterval(iv);setTimeout(launch,400)}
+  },reduce?40:70);
+}
+
+function launch(){
+  location.href = GAME_URL;
+}
+
+function failGate(){
+  gFail.hidden=false;gMsg.textContent='Terowongan buntu.';
+  gFailTxt.textContent='Game belum ditemukan di "'+GAME_URL+'". Jalankan website lewat server PHP (mis. php -S localhost:8000) atau ubah GAME_URL di bagian atas script.';
+}
+$('#gBack').addEventListener('click',()=>{gate.classList.remove('on');gate.setAttribute('aria-hidden','true');entering=false;gBar.style.width='0'});
+
+/* =====================================================
+   KRISTAL TERSEMBUNYI (eksplorasi)
+   ===================================================== */
+function setupGems(){
+  const gems=$$('.gem'),chip=$('#gemChip');let found=0;
+  gems.forEach(g=>g.addEventListener('click',e=>{
+    e.stopPropagation();if(g.classList.contains('found'))return;
+    g.classList.add('found');found++;$('#gemN').textContent=found;
+    const b=g.getBoundingClientRect();burst(b.left+b.width/2,b.top+b.height/2,['#7df2ff','#c9a8ff','#ffffff'],24,true);sfx('gem');
+    if(found===gems.length){chip.classList.add('full');zoneShow('Penjelajah sejati','Semua kristal ditemukan','6/6');sfx('ok');burst(innerWidth/2,innerHeight/2,['#7df2ff','#c9a8ff','#ffd35a','#ffffff'],80,true)}
+    else toast('Kristal ditemukan! '+found+' dari '+gems.length);
+  }));
+}
+
+/* =====================================================
+   KARAKTER (stage interaktif)
+   ===================================================== */
+let curChar='miner',ct=0,stageVis=false,typeT=0;
+function buildCharacters(){
+  const list=$('#clist');
+  Object.keys(CH).forEach((id,i)=>{
+    const C=CH[id],b=document.createElement('button');
+    b.type='button';b.className='card ccard';b.dataset.id=id;b.setAttribute('aria-pressed',i===0?'true':'false');
+    b.innerHTML='<canvas width="48" height="48"></canvas><span><h3>'+C.name+'</h3><p>'+C.desc+'</p><span class="tag '+C.tc+'">'+C.tag+'</span></span>';
+    charScene(b.querySelector('canvas').getContext('2d'),48,48,id,2,0);
+    b.addEventListener('click',()=>selChar(id));b.addEventListener('mouseenter',()=>selChar(id));b.addEventListener('focus',()=>selChar(id));
+    list.appendChild(b);
+  });
+  selChar('miner',true);
+  setInterval(()=>{if(stageVis&&!reduce){ct++;stageDraw()}},130);
+}
+function stageDraw(){const x=$('#stageCv').getContext('2d');x.imageSmoothingEnabled=false;charScene(x,142,100,curChar,4,ct)}
+function selChar(id,force){
+  if(id===curChar&&!force)return;
+  curChar=id;const C=CH[id];
+  $$('.ccard').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===id?'true':'false'));
+  $('#stName').textContent=C.name;const tg=$('#stTag');tg.textContent=C.tag;tg.className='tag '+C.tc;
+  $('#stStats').innerHTML=C.stats.map(s=>'<div><span>'+s[0]+'</span><span class="pips">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=s[1]?'on':'')+'"></i>').join('')+'</span></div>').join('');
+  stageDraw();
+  const el=$('#stSay');clearInterval(typeT);
+  if(reduce){el.textContent=C.say;return}
+  let i=0;el.textContent='';typeT=setInterval(()=>{el.textContent=C.say.slice(0,++i);if(i>=C.say.length)clearInterval(typeT)},22);
+  if(!force)sfx('pick');
+}
+
+/* =====================================================
+   GAMEPLAY & NEWS
+   ===================================================== */
+const GP=[
+ {ic:'pick',t:'Mining',s:'mine',d:'Gali berbagai jenis batuan dan temukan resource seperti emas, batu langka, dan material unik lainnya.'},
+ {ic:'gem',t:'Collect Resources',s:'collect',d:'Kumpulkan kayu, batu, mineral, dan bahan lain untuk membuat item dan menjualnya.'},
+ {ic:'coin',t:'Sell & Trade',s:'trade',d:'Jual hasil tambangmu ke merchant atau pemain lain untuk mendapatkan koin dan item spesial.'},
+ {ic:'hammer',t:'Upgrade',s:'upgrade',d:'Tingkatkan pickaxe, tas, dan kemampuanmu agar bisa menambang lebih dalam dan lebih cepat.'},
+ {ic:'book',t:'Explore',s:'explore',d:'Temukan area baru, rahasia tersembunyi, dan tantangan di berbagai bioma dunia.'},
+ ];
+function buildGameplay(){
+  const grid=$('#gpGrid');
+  GP.forEach(g=>{
+    const a=document.createElement('article');a.className='card gcard';
+    a.innerHTML='<div><h3><i class="ic" data-icon="'+g.ic+'" data-s="3"></i>'+g.t+'</h3><p>'+g.d+'</p></div><canvas width="128" height="72" aria-hidden="true"></canvas>';
+    const c=a.querySelector('canvas');paint(c,g.s,0);
+    if(!reduce){let iv=0;a.addEventListener('mouseenter',()=>{let t=0;clearInterval(iv);iv=setInterval(()=>paint(c,g.s,++t),140)});a.addEventListener('mouseleave',()=>{clearInterval(iv);paint(c,g.s,0)})}
+    grid.appendChild(a);
+  });
+}
+
+
+
+/* =====================================================
+   LOADER -> MASUK
+   ===================================================== */
+const ldFill=$('#ldFill'),ldCart=$('#ldCart'),ldPct=$('#ldPct'),ldEnter=$('#ldEnter'),loader=$('#loader');
+let ldP=0,artReady=false;
+function ldStep(){
+  const cap=artReady?100:88;
+  ldP=Math.min(cap,ldP+(artReady?6:Math.random()*2.6+.8));
+  ldFill.style.width=ldP+'%';ldCart.style.left=ldP+'%';ldPct.textContent=Math.floor(ldP)+'%';
+  if(ldP>=100){ldEnter.hidden=false;ldEnter.focus({preventScroll:true});return}
+  setTimeout(ldStep,reduce?10:55);
+}
+function enter(){
+  if(entered)return;entered=true;actx();sfx('gate');
+  document.body.classList.remove('locked');document.body.classList.add('entered','intro');
+  loader.classList.add('open');gauge.hidden=false;
+  setTimeout(()=>{loader.classList.add('done');zoneShow('Selamat datang','Permukaan','0 m')},reduce?100:2100);
+  onScroll();
+}
+ldEnter.addEventListener('click',enter);
+
+
+/* =====================================================
+   BUILD SEMUA ART & KOMPONEN
+   ===================================================== */
+function buildArt(){
+  root.style.setProperty('--cave','url('+caveTexture()+')');
+  drawHero($('#heroBG'));
+  person(cv(88,96,$('#heroMiner'))[1],0,4,4,PM);
+  $$('.strata canvas').forEach((c,i)=>strata(c,i===0?'surface':'rock',i*17+3));
+  $$('section.deep').forEach((s,i)=>s.appendChild(makeLantern(i%2?'right':'left')));
+  buildCharacters();buildGameplay();
+  injectIcons();setupGems();
+  new IntersectionObserver(en=>{stageVis=en[0].isIntersecting},{threshold:.1}).observe($('#character'));
+  layout();onScroll();
+}
+
+/* mulai: gambar mulut tambang dulu, muat font, lalu bangun sisanya */
+$$('.ld-c').forEach(drawEntrance);
+
+{const lx=ldCart.getContext('2d');lx.imageSmoothingEnabled=false;person(lx,2,1,1,PM)}
+injectIcons($('nav'));
+requestAnimationFrame(dustFrame);
+Promise.race([document.fonts?document.fonts.load('700 20px "Pixelify Sans"'):Promise.resolve(),new Promise(r=>setTimeout(r,1800))])
+  .catch(()=>{}).then(()=>{try{buildArt()}catch(e){console.error(e)}artReady=true});
+ldStep();
+window.addEventListener('load',()=>{if(secs.length){layout();onScroll()}});
+if(window.ResizeObserver)new ResizeObserver(()=>{if(secs.length){layout();onScroll()}}).observe(document.body);
+})();
+</script>
+</body>
+</html>
