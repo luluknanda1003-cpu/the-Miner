@@ -367,11 +367,295 @@ display:grid;place-items:center;background:rgba(6,9,25,.76);border-radius:8px}
 
 /* ---------- responsif dasar ---------- */
 
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;
-    transition:none!important}
+/* ---------- responsif dasar ---------- */
+
+@media (max-width:1180px){
+
+  /* ================= NAVBAR ================= */
+
+  nav.top{
+    height:64px;
+    padding:0 16px;
+  }
+
+  .nav-left{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  .mobile-menu{
+    display:flex;
+    width:36px;
+    height:36px;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:rgba(10,14,44,.85);
+    color:#fff;
+    font-size:20px;
+    line-height:1;
+    cursor:pointer;
+    flex:none;
+  }
+
+  .logo{
+    font-size:16px;
+    gap:7px;
+  }
+
+  /* menu desktop disembunyikan di HP/tablet */
+  .links{
+    display:none;
+  }
+
+  /* menu hamburger */
+  .links.open{
+    display:flex;
+    position:absolute;
+    top:64px;
+    left:12px;
+    right:12px;
+
+    flex-direction:column;
+    gap:4px;
+    padding:10px;
+
+    background:rgba(7,10,32,.97);
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 12px 30px rgba(0,0,0,.5);
+
+    z-index:100;
+  }
+
+  .links.open a{
+    display:block;
+    width:100%;
+    padding:13px 14px;
+    border-radius:6px;
+  }
+
+  .links.open a:hover{
+    background:rgba(124,108,255,.18);
+  }
+
+  /* bagian kanan navbar */
+  .nav-r{
+    gap:6px;
+  }
+
+  .nav-r .gemchip{
+    display:none;
+  }
+
+  .nav-r .btn{
+    padding:8px 12px;
+    font-size:11px;
+    white-space:nowrap;
+  }
+
+
+  /* ================= CONTENT ================= */
+
+  .wrap{
+    width:100%;
+    max-width:1216px;
+    padding-left:24px;
+    padding-right:24px;
+  }
+
+
+  /* CHARACTER tetap 2 kolom */
+  .char-grid{
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+  }
+
+
+  /* GAMEPLAY tetap 2 kolom */
+  .gp-grid{
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+
+
+  /* HERO tetap mempertahankan bentuk */
+  .hero-bottom{
+    flex-direction:row;
+    align-items:flex-end;
+  }
+
+  h1.title{
+    font-size:72px;
+  }
+
+
+  /* miner tetap tampil */
+  #heroMiner{
+    display:block;
+  }
+
+
+  /* gauge disembunyikan agar tidak menutupi layar HP */
+  .gauge{
+    display:none;
+  }
+
+
+  /* ================= PLAY NOW ================= */
+
+  .real-game{
+    width:100%;
+    max-width:1100px;
+    box-sizing:border-box;
+  }
+
+  .game-frame{
+    width:100%;
+    height:720px;
+  }
+
+  .cue{
+    display:none;
+  }
 }
 
+
+/* ================= HP ================= */
+
+@media (max-width:600px){
+
+  nav.top{
+    height:60px;
+    padding:0 10px;
+  }
+
+  .mobile-menu{
+    width:34px;
+    height:34px;
+    font-size:19px;
+  }
+
+  .logo{
+    font-size:13px;
+    gap:5px;
+  }
+
+  .nav-r{
+    gap:4px;
+  }
+
+  .nav-r .btn{
+    padding:7px 9px;
+    font-size:10px;
+  }
+
+
+  /* ukuran judul */
+  h1.title{
+    font-size:52px;
+  }
+
+  .tagline{
+    font-size:17px;
+  }
+
+  .lead{
+    font-size:14px;
+    max-width:390px;
+  }
+
+
+  /* tetap 2 kolom */
+  .char-grid{
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .gp-grid{
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+
+  /* kartu character tidak terlalu besar */
+  .ccard{
+    gap:8px;
+    padding:8px;
+  }
+
+  .ccard canvas{
+    width:64px;
+    height:64px;
+  }
+
+  .ccard h3{
+    font-size:16px;
+  }
+
+  .ccard p{
+    font-size:10px;
+  }
+
+
+  /* gameplay card */
+  .gcard{
+    grid-template-columns:1fr;
+    gap:8px;
+    padding:10px;
+  }
+
+  .gcard canvas{
+    width:100%;
+    height:auto;
+  }
+
+
+  /* PLAY NOW */
+  .real-game{
+    width:100%;
+    max-width:100%;
+    padding:8px;
+    margin-top:25px;
+  }
+
+  .game-frame{
+    width:100%;
+    height:500px;
+  }
+
+
+  /* judul section */
+  #final h2.sec,
+  #playnow h2.sec{
+    font-size:32px;
+  }
+
+  #final .sub,
+  #playnow .sub{
+    font-size:13px;
+  }
+
+
+  /* tombol */
+  .btn.big{
+    padding:15px 25px;
+    font-size:18px;
+  }
+}
+
+
+/* ---------- reduced motion ---------- */
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation:none!important;
+    transition:none!important;
+  }
+}
 /* GAME THE MINER DI PLAY NOW */
 .real-game {
   width: 100%;
