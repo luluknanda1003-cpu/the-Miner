@@ -63,59 +63,11 @@ a{color:inherit;text-decoration:none}
 
 /* ---------- navigasi ---------- */
 nav.top{position:fixed;top:0;left:0;right:0;height:76px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:0 56px;transition:background .3s,box-shadow .3s}
-
-.mobile-nav-left{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
+nav.top.solid{background:rgba(7,10,32,.88);backdrop-filter:blur(10px);box-shadow:0 2px 0 var(--line-soft)}
 .logo{display:flex;align-items:center;gap:10px;font:700 19px/.92 var(--px);letter-spacing:.5px;text-transform:uppercase;text-shadow:0 2px 0 #0a0d2b}
-
 .logo .ic{transform:rotate(-25deg)}
-
-.mobile-menu{
-  display:none;
-  width:38px;
-  height:38px;
-  padding:0;
-  border:1px solid var(--line);
-  border-radius:8px;
-  background:rgba(10,14,44,.8);
-  color:#fff;
-  font-size:22px;
-  cursor:pointer;
-  align-items:center;
-  justify-content:center;
-}
 .links{display:flex;gap:6px}
-.mobile-menu{
-  display:none;
-  width:42px;
-  height:42px;
-  padding:0;
-  border:1px solid var(--line);
-  border-radius:8px;
-  background:rgba(10,14,44,.8);
-  color:#fff;
-  font-size:24px;
-  cursor:pointer;
-}
-
 .links a{position:relative;padding:8px 16px;font-size:14px;font-weight:600;color:#c9d2ff;transition:color .15s}
-.mobile-menu{
-  display:none;
-  width:42px;
-  height:42px;
-  padding:0;
-  border:1px solid var(--line);
-  border-radius:8px;
-  background:rgba(10,14,44,.8);
-  color:#fff;
-  font-size:24px;
-  cursor:pointer;
-}
-
 .links a:hover,.links a.on{color:#fff}
 .links a.on::after{content:'';position:absolute;left:16px;right:16px;bottom:0;height:4px;background:var(--lantern);box-shadow:0 0 12px var(--lantern)}
 .nav-r{display:flex;align-items:center;gap:12px}
@@ -385,26 +337,20 @@ display:grid;place-items:center;background:rgba(6,9,25,.76);border-radius:8px}
 #gFailTxt{max-width:460px;margin-bottom:16px;font-size:14px;line-height:1.6;color:#f5c9c9}
 
 
-/* ---------- responsif dasar ---------- */ 
-@media (max-width:1180px){ 
+/* ---------- responsif dasar ---------- */
+@media (max-width:1180px){
   .links,.gauge{display:none}
-
-  .mobile-menu{
-    display:flex;
-  }
-   
-  nav.top{padding:0 20px} 
-  .char-grid,.gp-grid,.news-grid{grid-template-columns:1fr} 
-  .hero-bottom{flex-direction:column;align-items:flex-start;gap:16px} 
-  h1.title{font-size:72px} 
-  #heroMiner{display:none} 
-  .game,#game{width:100%;height:auto} 
-  .game{box-sizing:border-box} 
-  .cue{display:none} 
+  nav.top{padding:0 20px}
+  .char-grid,.gp-grid,.news-grid{grid-template-columns:1fr}
+  .hero-bottom{flex-direction:column;align-items:flex-start;gap:16px}
+  h1.title{font-size:72px}
+  #heroMiner{display:none}
+  .game,#game{width:100%;height:auto}
+  .game{box-sizing:border-box}
+  .cue{display:none}
 }
-
-@media (prefers-reduced-motion:reduce){ 
-  *,*::before,*::after{animation:none!important;transition:none!important} 
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
 }
 
 /* GAME THE MINER DI PLAY NOW */
@@ -520,26 +466,13 @@ display:grid;place-items:center;background:rgba(6,9,25,.76);border-radius:8px}
 
 <!-- ============ NAVIGASI ============ -->
 <nav class="top" id="nav" aria-label="Navigasi utama">
-
-  <div class="mobile-nav-left">
-
-    <a class="logo" href="#home" data-go="home" aria-label="THE MINER, ke atas">
-      <i class="ic" data-icon="pick" data-s="3"></i>
-      <span>THE<br>MINER</span>
-    </a>
-
-    <button class="mobile-menu" id="mobileMenu" type="button"
-      aria-label="Buka menu" aria-expanded="false">☰</button>
-
-  </div>
-
+  <a class="logo" href="#home" data-go="home" aria-label="THE MINER, ke atas"><i class="ic" data-icon="pick" data-s="3"></i><span>THE<br>MINER</span></a>
   <div class="links" id="links">
     <a href="#home" data-go="home">Home</a>
     <a href="#character" data-go="character">Character</a>
     <a href="#gameplay" data-go="gameplay">Gameplay</a>
     <a href="#playnow" data-go="playnow">Playnow</a>
   </div>
-
   <div class="nav-r">
     <div class="gemchip" id="gemChip" title="Kristal tersembunyi yang sudah kamu temukan"><i class="ic" data-icon="gem" data-s="2"></i><span><b id="gemN">0</b>/6</span></div> 
     <button class="btn" type="button" data-play><span class="tri"></span>Play Now</button>
@@ -688,21 +621,6 @@ const DEPTH_MAX=420;
    ===================================================== */
 const $=(s,r)=>(r||document).querySelector(s);
 const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
-const mobileMenu=$('#mobileMenu');
-const links=$('#links');
-
-mobileMenu?.addEventListener('click',()=>{
-  const open=links.classList.toggle('open');
-  mobileMenu.setAttribute('aria-expanded',String(open));
-});
-
-links?.addEventListener('click',e=>{
-  if(e.target.closest('a')){
-    links.classList.remove('open');
-    mobileMenu?.setAttribute('aria-expanded','false');
-  }
-});
-
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 const root=document.documentElement;
@@ -1058,10 +976,8 @@ function zoneShow(label,name,right){$('#zoneL').textContent=label;$('#zoneN').te
    SCROLL: kedalaman, cahaya lentera, balok, gauge
    ===================================================== */
 const nav=$('#nav'),gauge=$('#gauge'),rail=$('#rail'),mark=$('#mark'),depthNum=$('#depthNum'),scene=$('#scene');
-
 let secs=[],nodes=[],maxScroll=1,activeIdx=-1,entered=false,ticking=false;
 function layout(){
-
   secs=$$('main>section').map(el=>({el:el,id:el.id,depth:+el.dataset.depth,zone:el.dataset.zone,top:el.offsetTop}));
   maxScroll=Math.max(1,root.scrollHeight-innerHeight);
   if(!nodes.length){secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='node';b.setAttribute('aria-label',s.zone+', kedalaman '+s.depth+' meter');b.dataset.tip=s.zone+', −'+s.depth+' m';b.addEventListener('click',()=>goTo(s.id));rail.appendChild(b);nodes.push(b)})}
