@@ -1,0 +1,72 @@
+game the miner
+karakter : 2 (aron + junet)
+nyawa 10 hp
+npc : 2 (penjual barang + pembeli ore)
+level dunia : permukaan (lvl 1) + gua(lvl 2) + gua dalam (lvl 3) 
+ore : batu bara, besi, gold, diamond
+beliung : kayu, besi, emas, diamond
+secret pix axe (warna merah)
+buat mekanisme koin
+penjual :beliung batu (kayu 3 + batu 5 + 3 koin)
+	beliung besi (kayu 3 + batu 1 + basi 3 + 5 koin)
+	beliung emas (kayu 3 + besi 2 + emas 3 + 10 koin)
+	beliung diamond (kayu 3 + emas 2 + diamond 5 + 25 koin)
+makanan (2 koin)
+pembeli : coal = 1 koin, besi = 2 koin, emas = 4 koin, berlian = 7 koin
+* secret pix axe ada di dalam gua level 3 menempel di atas batu 
+backstory : 
+disuatu tempat, ada sebuah desa yang bernama mineral town , di desa tersebut terjadi gempa yang terus menerus. para warga desa terpaksa harus menambang untuk mencari tahu sebab gempa tersebut.
+
+mekanisme : 
+durability block = jangan tampilkan hp untuk block
+1. kayu 3 hp
+2. daun 1 hp 
+3. tanah 1 hp
+4. batu 5 hp
+5. coal 6 hp
+6. besi 8 hp
+7. emas 5 hp (hanya bsa ditambang beliung besi)
+8. batu gua dalam 8 hp
+9. diamond 10 hp
+
+damage pix axe :
+kayu =1, batu=2, besi =3, emas =5, diamond =7, secret =10
+mob : cacing, lendir, tikus tanah 
+lendir : damage 1/2, hp 1
+cacing : damage 1, hp 2
+tikus tanah : damage 2, hp 6
+bos ibu tikus tanah : damage 3, hp 30
+keep invetory
+cara naik dan turun mengunakan pintu keluar yang tersebar di dungeon lvl tsb.
+buat pintu dunia lvl 2 di dekat tempat spawn, dan pintu dunia lvl 3 didalam gua pojok kanan bawah dunia lvl 2
+block di dunia 
+permukaan :
+diatas permukaan ada kayu dan daun, 4 blok permukaan berupa tanah, dan seterusnya (blok ke 5 dr permukaan sudah didalam tanah)
+-kayu,daun,tanah,batu,coal(banyak),besi(tidak banyak tapi juga tidak sedikit)
+gua :
+batu,tanah(jarang),coal(Banyak),besi(banyak),emas(sedikit)
+gua dalam : didalam nya berisi batu gua dalam dan banyak ore lainnya(coal,besi,emas,& diamond)
+batu gua dalam, coal(banyak), besi(banyak), emas(sedengan), diamond(jarang)
+
+untuk trader hanya ada di permukaan.
+dunia : 
+1. permukaan : trader
+mob : lendir + cacing (jarang) *cacing hanya ada digua dalam bagian dunia permukaan (lvl 1)
+2. gua : pencahayaan sangat minim hanya terlihat 4 blok dari karakter
+mob : lendir(banyak) + cacing(banyak) + tikus tanah(jarang) 
+3. gua dalam : pencahayaan hanya 3 blok dari karakter
+mob : cacing (banyak) + tikus tanah(banyak) + ibu tikus tanah (hanya 1) 
+
+*lokasi secret ada di gua dalam(lvl 3) di gua pojok kiri
+lokasi bos di pojok kanan gua dalam (lvl 3)
+pintu msuk digua 2 ada di dekat gua tempat spawn karakter, setelah masuk kita keluar di gua lvl 2 (kita sudah berada jauh didalam tanah ,untuk naik ke lvl 1(permukaan) Kembali harus lewat pintu yang sama dengan pintu kita masuk. 
+lokasi pintu masuk ke lvl 3 ada di gua pertengahan bagian kanan dunia gua(lvl 2), dan pintu Kembali ke dunia gua(lvl 2) dari dunia gua dalam(lvl 3) sama dengan pintu masuk. 
+lokasi keluar (lvl 2, dan lvl 3) ada di bagian atas 
+tengah setiap dunia.
+
+bug 1 = tidak dapat menambang batu & ore tampa alat
+*pada awal spawn sudah mendapatkan pix axe kayu, 
+pix axe kayu hanya bisa menghancurkan batu dan coal (tanah,kayu, dan daun disertakan)
+pix axe batu dapat tambahan menghancurkan besi
+pix axe besi sudah dapat menhancurkan semua blok
+bug 2 = lokasi pintu masuk lvl 2 jangan di atas permukaan, buat gua beberapa blok di Bawah tempat spawn dan taruh pintu di dalam gua tsb.
