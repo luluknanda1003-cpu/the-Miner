@@ -63,9 +63,31 @@ a{color:inherit;text-decoration:none}
 
 /* ---------- navigasi ---------- */
 nav.top{position:fixed;top:0;left:0;right:0;height:76px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:0 56px;transition:background .3s,box-shadow .3s}
-nav.top.solid{background:rgba(7,10,32,.88);backdrop-filter:blur(10px);box-shadow:0 2px 0 var(--line-soft)}
+
+.mobile-nav-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
 .logo{display:flex;align-items:center;gap:10px;font:700 19px/.92 var(--px);letter-spacing:.5px;text-transform:uppercase;text-shadow:0 2px 0 #0a0d2b}
+
 .logo .ic{transform:rotate(-25deg)}
+
+.mobile-menu{
+  display:none;
+  width:38px;
+  height:38px;
+  padding:0;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:rgba(10,14,44,.8);
+  color:#fff;
+  font-size:22px;
+  cursor:pointer;
+  align-items:center;
+  justify-content:center;
+}
 .links{display:flex;gap:6px}
 .mobile-menu{
   display:none;
@@ -365,33 +387,10 @@ display:grid;place-items:center;background:rgba(6,9,25,.76);border-radius:8px}
 
 /* ---------- responsif dasar ---------- */ 
 @media (max-width:1180px){ 
-  .gauge{display:none}
+  .links,.gauge{display:none}
 
   .mobile-menu{
-    display:block;
-  }
-
-  .links{
-    display:none;
-    position:absolute;
-    top:68px;
-    right:20px;
-    flex-direction:column;
-    gap:4px;
-    min-width:180px;
-    padding:10px;
-    background:rgba(7,10,32,.97);
-    border:1px solid var(--line);
-    border-radius:10px;
-    box-shadow:0 12px 30px rgba(0,0,0,.45);
-  }
-
-  .links.open{
     display:flex;
-  }
-
-  .links a{
-    padding:12px 14px;
   }
    
   nav.top{padding:0 20px} 
@@ -402,7 +401,7 @@ display:grid;place-items:center;background:rgba(6,9,25,.76);border-radius:8px}
   .game,#game{width:100%;height:auto} 
   .game{box-sizing:border-box} 
   .cue{display:none} 
-} 
+}
 
 @media (prefers-reduced-motion:reduce){ 
   *,*::before,*::after{animation:none!important;transition:none!important} 
@@ -521,14 +520,25 @@ display:grid;place-items:center;background:rgba(6,9,25,.76);border-radius:8px}
 
 <!-- ============ NAVIGASI ============ -->
 <nav class="top" id="nav" aria-label="Navigasi utama">
-  <a class="logo" href="#home" data-go="home" aria-label="THE MINER, ke atas"><i class="ic" data-icon="pick" data-s="3"></i><span>THE<br>MINER</span></a>
+
+  <div class="mobile-nav-left">
+
+    <a class="logo" href="#home" data-go="home" aria-label="THE MINER, ke atas">
+      <i class="ic" data-icon="pick" data-s="3"></i>
+      <span>THE<br>MINER</span>
+    </a>
+
+    <button class="mobile-menu" id="mobileMenu" type="button"
+      aria-label="Buka menu" aria-expanded="false">☰</button>
+
+  </div>
+
   <div class="links" id="links">
     <a href="#home" data-go="home">Home</a>
     <a href="#character" data-go="character">Character</a>
     <a href="#gameplay" data-go="gameplay">Gameplay</a>
     <a href="#playnow" data-go="playnow">Playnow</a>
   </div>
-  <button class="mobile-menu" id="mobileMenu" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
 
   <div class="nav-r">
     <div class="gemchip" id="gemChip" title="Kristal tersembunyi yang sudah kamu temukan"><i class="ic" data-icon="gem" data-s="2"></i><span><b id="gemN">0</b>/6</span></div> 
@@ -1048,8 +1058,20 @@ function zoneShow(label,name,right){$('#zoneL').textContent=label;$('#zoneN').te
    SCROLL: kedalaman, cahaya lentera, balok, gauge
    ===================================================== */
 const nav=$('#nav'),gauge=$('#gauge'),rail=$('#rail'),mark=$('#mark'),depthNum=$('#depthNum'),scene=$('#scene');
+
+const mobileMenu=$('#mobileMenu');
+const links=$('#links');
+
+if(mobileMenu){
+  mobileMenu.addEventListener('click',()=>{
+    const open=links.classList.toggle('mobile-open');
+    mobileMenu.setAttribute('aria-expanded',String(open));
+  });
+}
+
 let secs=[],nodes=[],maxScroll=1,activeIdx=-1,entered=false,ticking=false;
 function layout(){
+
   secs=$$('main>section').map(el=>({el:el,id:el.id,depth:+el.dataset.depth,zone:el.dataset.zone,top:el.offsetTop}));
   maxScroll=Math.max(1,root.scrollHeight-innerHeight);
   if(!nodes.length){secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='node';b.setAttribute('aria-label',s.zone+', kedalaman '+s.depth+' meter');b.dataset.tip=s.zone+', −'+s.depth+' m';b.addEventListener('click',()=>goTo(s.id));rail.appendChild(b);nodes.push(b)})}
