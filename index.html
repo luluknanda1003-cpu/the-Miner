@@ -1059,16 +1059,6 @@ function zoneShow(label,name,right){$('#zoneL').textContent=label;$('#zoneN').te
    ===================================================== */
 const nav=$('#nav'),gauge=$('#gauge'),rail=$('#rail'),mark=$('#mark'),depthNum=$('#depthNum'),scene=$('#scene');
 
-const mobileMenu=$('#mobileMenu');
-const links=$('#links');
-
-if(mobileMenu){
-  mobileMenu.addEventListener('click',()=>{
-    const open=links.classList.toggle('mobile-open');
-    mobileMenu.setAttribute('aria-expanded',String(open));
-  });
-}
-
 let secs=[],nodes=[],maxScroll=1,activeIdx=-1,entered=false,ticking=false;
 function layout(){
 
